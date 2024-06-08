@@ -5,7 +5,7 @@ import {Strategy as JWTStrategy, ExtractJwt} from 'passport-jwt';
 const cookieExtractor = function(req: any) {
     let token = null;
     if (req && req.cookies) {
-        token = req.cookies['JWT_SESSION'];
+        token = req.cookies['token'];
     }
     return token;
 };

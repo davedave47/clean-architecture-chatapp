@@ -1,4 +1,4 @@
-import chatappDB from '@src/infras/db/config/chatappDB';
+import chatappDB from '@src/infras/db/models/chatappDB';
 import httpServer from '@infras/express/socket';
 require('dotenv').config();
 

@@ -9,4 +9,7 @@ export default class User {
         this.email = email;
         this.password = password;
     }
+    isAdmin() {
+        return this.username === 'admin';
+    }
 }

@@ -1,5 +1,5 @@
 import { UserUseCases } from '@domain/use-cases';
-import {Request, Response} from 'express';
+import e, {Request, Response} from 'express';
 
 export default class UserController {
     private userUseCases: UserUseCases;
@@ -11,7 +11,7 @@ export default class UserController {
             const {name, email, password} = req.body;
             console.log('Creating user', name, email, password)
             const token = await this.userUseCases.createUser(name, email, password);
-            res.status(201).json({token});
+            res.status(201).cookie('token', token, {httpOnly: true}).json({message: 'Registered successfully'});
         }
         catch(e) {
             let status = 500;
@@ -25,14 +25,18 @@ export default class UserController {
             console.error('Error creating user', e);
             res.status(status).json({error: (e as any).detail ?? (e as any).message});
         }
-
     }
 
     getUserByEmailController = async (req: Request, res: Response) => {
         try {
             const {email} = req.params;
             const user = await this.userUseCases.getUserByEmail(email);
-            res.json(user);
+            if (user) {
+                res.json(user);
+            }
+            else {
+                res.status(404).json({error: 'User not found'});
+            }
         } catch (e) {
             console.error('Error getting user by email', e);
             res.status(500).json({error: 'Error getting user by email'});
@@ -52,7 +56,7 @@ export default class UserController {
         try {
             const token = await this.userUseCases.login(req.body.email, req.body.password);
             if (token) {
-                res.json({ token });
+                res.cookie('token', token, {httpOnly: true}).json({message: 'Logged in successfully'});
             } else {
                 res.status(401).json({ error: 'Invalid email or password' });
             }

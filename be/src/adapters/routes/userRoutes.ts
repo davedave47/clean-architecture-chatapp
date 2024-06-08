@@ -1,11 +1,14 @@
 import { UserUseCases } from "@src/domain/use-cases";
 import { UserController } from "@src/adapters/controllers";
-import { passportMiddleware } from "../middlewares";
+import { passportMiddleware, isAdmin, isSelforAdmin } from "../middlewares";
 function userRoutes(userUseCase: UserUseCases) {
     
     const controller = new UserController(userUseCase);
-    const passport = passportMiddleware(userUseCase);
 
+    const passport = passportMiddleware(userUseCase);
+    const adminAuth = isAdmin(userUseCase);
+    const isSelforAdminAuth = isSelforAdmin(userUseCase);
+    
     const userRoutes = [{
         path: "/register",
         method: "post",
@@ -16,7 +19,7 @@ function userRoutes(userUseCase: UserUseCases) {
         path: "/users",
         method: "get",
         handler: controller.getAllUsersController,
-        middlewares: [passport.authenticate('jwt', {session: false})]
+        middlewares: [passport.authenticate('jwt', {session: false}),adminAuth]
     }, 
     {
         path: "/login",
@@ -28,7 +31,7 @@ function userRoutes(userUseCase: UserUseCases) {
         path: "/:email",
         method: "get",
         handler: controller.getUserByEmailController,
-        middlewares: [passport.authenticate('jwt', {session: false})]
+        middlewares: [passport.authenticate('jwt', {session: false}),isSelforAdminAuth]
     }
     ]
     return userRoutes
