@@ -32,7 +32,7 @@ export default class UserUseCases {
     async getAllUsers(): Promise<User[]> {
         return this.userRepository.getAllUsers();
     }
-    async getUserById(id: number): Promise<User | null> {
+    async getUserById(id: string): Promise<User | null> {
         return this.userRepository.getUserById(id);
     }
     async login(email: string, password: string): Promise<string | null> {

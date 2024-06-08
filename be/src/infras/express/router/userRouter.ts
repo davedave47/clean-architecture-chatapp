@@ -8,8 +8,6 @@ const userRouter = express.Router()
 const userUseCase = new UserUseCases(new UserRepository());
 const userRoutesList = userRoutes(userUseCase);
 
-console.log(userRoutesList);
-
 userRoutesList.forEach(route => {
     (userRouter as Router & Record<string,any>)[route.method](route.path, route.middlewares, route.handler)
 })
