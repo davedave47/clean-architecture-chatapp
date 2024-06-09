@@ -3,14 +3,18 @@ require('dotenv').config();
 
 const dbconfig = {
     user: process.env.DB_USER!,
-    host: '127.0.0.1',
+    host: process.env.DB_HOST!,
     database: process.env.DB_NAME!,
     password: process.env.DB_PASSWORD!,
-    port: 27017
+    port: parseInt(process.env.DB_PORT!)
+}
+function connectDB(config: {user: string, host: string, database: string, password: string, port: number}) {
+        const db = createConnection(`mongodb://${config.host}:${config.port}/${config.database}`);
+        console.log('Connected to MongoDB');
+        return db;
 }
 
-const uri = `mongodb://${dbconfig.host}:${dbconfig.port}/${dbconfig.database}`
-const chatappDB = createConnection(uri);
-console.log('Connected to MongoDB');
+const chatappDB = connectDB(dbconfig);
+
 
 export default chatappDB;  
