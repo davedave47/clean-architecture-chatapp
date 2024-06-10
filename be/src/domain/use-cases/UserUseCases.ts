@@ -35,7 +35,7 @@ export default class UserUseCases {
     async getUserById(id: string): Promise<User | null> {
         return this.userRepository.getUserById(id);
     }
-    async login(email: string, password: string): Promise<string | null> {
+    async login(email: string, password: string): Promise< {token: string, user:User} | null> {
         const user = await this.userRepository.getUserByEmail(email);
         if (!user) {
             return null;
@@ -47,7 +47,7 @@ export default class UserUseCases {
                 throw new Error('JWT_SECRET is not set');
             }
             const token = jwt.sign({ id: user.id }, secret, { expiresIn: '1h' });
-            return token;
+            return {token, user};
         }
         return null;
     }

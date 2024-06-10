@@ -1,5 +1,5 @@
 import { UserUseCases } from "@src/domain/use-cases";
-import { UserController } from "@src/adapters/controllers";
+import { UserController } from "@src/api/controllers";
 import { passportMiddleware, isAdmin, isSelforAdmin } from "../middlewares";
 function userRoutes(userUseCase: UserUseCases) {
     

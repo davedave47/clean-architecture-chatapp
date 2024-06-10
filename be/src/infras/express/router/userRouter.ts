@@ -1,7 +1,7 @@
 import express, {Router} from 'express';
 import { UserRepository }  from '@src/infras/db/repository';
 import { UserUseCases }  from '@src/domain/use-cases';
-import { userRoutes } from '@src/adapters/routes';
+import { userRoutes } from '@src/api/routes';
 
 const userRouter = express.Router()
 

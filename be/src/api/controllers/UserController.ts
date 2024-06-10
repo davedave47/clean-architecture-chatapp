@@ -54,9 +54,10 @@ export default class UserController {
     }
     loginController = async (req: Request, res: Response) => {
         try {
-            const token = await this.userUseCases.login(req.body.email, req.body.password);
-            if (token) {
-                res.cookie('token', token, {httpOnly: true}).json({message: 'Logged in successfully'});
+            const result = await this.userUseCases.login(req.body.email, req.body.password);
+            if (result) {
+                const {token, user} = result;
+                res.cookie('token', token, {httpOnly: true}).json({message: 'Logged in successfully', user});
             } else {
                 res.status(401).json({ error: 'Invalid email or password' });
             }
