@@ -1,15 +1,15 @@
+import Request from './Request'
+import Conversation from './Conversation';
 require('dotenv').config();
 export default class User {
-    id: string;
-    username: string;
-    email: string;
-    password: string;
-    constructor(id: string, username: string, email: string, password: string) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-    }
+    constructor(
+        public readonly id: string,
+        public readonly username: string,
+        public readonly email: string,
+        public requests?: Request[],
+        public friends?: {id: string, name: string}[],
+        public conversations?: Conversation[],
+    ) {}
     isAdmin() {
         return this.username === process.env.ADMIN_NAME;
     }
