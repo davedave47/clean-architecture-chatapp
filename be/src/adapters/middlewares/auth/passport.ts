@@ -22,7 +22,7 @@ const userUseCase = new UserUseCases(new UserRepository());
 const strategy = new JWTStrategy(options, async (req, jwtPayload, done) => {
     const user = await userUseCase.getUserById(jwtPayload.id);
     if (user) {
-        req.body.userId = user.id;
+        req.body.id = user.id;
         done(null, user);
     } else {
         done(null, false);

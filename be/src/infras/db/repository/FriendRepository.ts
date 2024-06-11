@@ -3,18 +3,13 @@ import {User} from "@src/domain/entities";
 import { UserModel, FriendModel } from "../models";
 class FriendRepository implements IFriendRepository {
     async createFriend(userId1: string, friendId: string): Promise<boolean> {
-        const conditions = {
-            $or: [
-                { userId1: userId1, userId2: friendId },
-                { userId1: friendId, userId2: userId1 }
-            ]
-        };
-        const update = { userId1, userId2: friendId };
-        const options = { upsert: true, new: true, setDefaultsOnInsert: true };
-    
-        const friendDocument = await FriendModel.findOneAndUpdate(conditions, update, options);
-    
-        return !!friendDocument;
+        const friend = await UserModel.findById(friendId);
+        if (!friend) {
+            throw new Error('Friend not found');
+        }
+        const friendDocument = new FriendModel({ userId1, userId2: friendId });
+        await friendDocument.save();
+        return true;
     }
     async checkFriend(userId: string, friendId: string): Promise<boolean> {
         const friendDocument = await FriendModel.findOne({

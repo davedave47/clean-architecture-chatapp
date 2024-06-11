@@ -6,38 +6,41 @@ class FriendController {
     ) {}
     addFriendController = async (req: Request, res: Response) => {
         try {
-            const {userId, friendId} = req.body;
-            if (!userId || !friendId) {
-                res.status(400).json({error: 'userId and friendId are required'});
+            const {id, friendId} = req.body;
+            if (!id || !friendId) {
+                res.status(400).json({error: 'id and friendId are required'});
                 return;
             }
-            if (userId === friendId) {
+            if (id === friendId) {
                 res.status(400).json({error: 'You cannot be friends with yourself'});
                 return;
             }
-            const result = await this.friendUseCases.createFriend(userId, friendId);
-            if (result) {
-                res.json({message: 'Friend added successfully'});
-            } else {
-                res.status(409).json({error: 'Friend already exists'});
+            await this.friendUseCases.createFriend(id, friendId);
+            res.json({message: 'Friend added successfully'});
+        } catch (e) {     
+            const error = e as any;           
+            if (error.code === 11000) {
+                return res.status(409).json({error: 'Friend already exists'});
             }
-        } catch (e) {
+            if (error.message = "Friend not found") {
+                return res.status(404).json({error: 'Friend not found'});
+            }
             console.error('Error adding friend', e);
             res.status(500).json({error: 'Error adding friend'});
         }
     }
     unFriendController = async (req: Request, res: Response) => {
         try {
-            const {userId, friendId} = req.body;
-            if (!userId || !friendId) {
-                res.status(400).json({error: 'userId and friendId are required'});
+            const {id, friendId} = req.body;
+            if (!id || !friendId) {
+                res.status(400).json({error: 'id and friendId are required'});
                 return;
             }
-            if (userId === friendId) {
+            if (id === friendId) {
                 res.status(400).json({error: 'You cannot unfriend yourself'});
                 return;
             }
-            const result = await this.friendUseCases.deleteFriend(userId, friendId);
+            const result = await this.friendUseCases.deleteFriend(id, friendId);
             if (result) {
                 res.json({message: 'Friend removed successfully'});
             } else {
@@ -50,12 +53,12 @@ class FriendController {
     }
     getFriendsController = async (req: Request, res: Response) => {
         try {
-            const {userId} = req.body;
-            if (!userId) {
-                res.status(400).json({error: 'userId is required'});
+            const {id} = req.body;
+            if (!id) {
+                res.status(400).json({error: 'id is required'});
                 return;
             }
-            const friends = await this.friendUseCases.getFriends(userId);
+            const friends = await this.friendUseCases.getFriends(id);
             res.json({friends});
         } catch (e) {
             console.error('Error getting friends', e);

@@ -30,8 +30,9 @@ export default class UserRepository implements IUserRepository {
         return null;
     }
 
-    async updateEmail(id: string, email: string): Promise<User | null> {
-        const userDocument = await UserModel.findByIdAndUpdate(id, { email }, { new: true });
+    async updateUser(user: {id:string, email?:string, username?:string }): Promise<User | null> {
+        const {id, ...rest} = user;
+        const userDocument = await UserModel.findByIdAndUpdate(id, rest, { new: true });
         if (userDocument) {
             return new User(userDocument._id.toString(), userDocument.name, userDocument.email);
         }

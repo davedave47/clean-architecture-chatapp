@@ -19,8 +19,8 @@ export default class UserUseCases {
     async getUserById(id: string): Promise<User | null> {
         return this.userRepository.getUserById(id);
     }
-    async updateUserEmail(id: string, email: string): Promise<User | null> {
-        return this.userRepository.updateEmail(id, email);
+    async updateUser(user: {id:string, email?:string, username?:string }): Promise<User | null> {
+        return this.userRepository.updateUser(user);
     }
     async updateUserPassword(id: string, password: string): Promise<User | null> {
         const hashedPassword = await bcrypt.hash(password, process.env.SALT||10);

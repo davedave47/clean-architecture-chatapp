@@ -5,6 +5,25 @@ export default class UserController {
     constructor(
         private userUseCases: UserUseCases,
     ) {}
+    getUserController = async (req: Request, res: Response) => {
+        if (req.user) {
+            res.json({user: req.user});
+            return;
+        }
+        try {
+            const {id} = req.params;
+            const user = await this.userUseCases.getUserById(id);
+            if (user) {
+                res.json({user});
+            }
+            else {
+                res.status(404).json({error: 'User not found'});
+            }
+        } catch (e) {
+            console.error('Error getting user', e);
+            res.status(500).json({error: 'Error getting user'});
+        }
+    }
     getUserByEmailController = async (req: Request, res: Response) => {
         if (req.user) {
             res.json({user: req.user});
@@ -34,13 +53,11 @@ export default class UserController {
             res.status(500).json({error: 'Error getting all users'});
         }
     }
-    updateUserEmailController = async (req: Request, res: Response) => {
+    updateUserController = async (req: Request, res: Response) => {
         try {
-            const {id} = req.params;
-            const {email} = req.body;
-            const user = await this.userUseCases.updateUserEmail(id, email);
+            const user = await this.userUseCases.updateUser(req.body);
             if (user) {
-                res.json(user);
+                res.json({message: "Update Successful", user});
             } else {
                 res.status(404).json({error: 'User not found'});
             }
@@ -51,11 +68,10 @@ export default class UserController {
     }
     updateUserPasswordController = async (req: Request, res: Response) => {
         try {
-            const {id} = req.params;
-            const {password} = req.body;
-            const user = await this.userUseCases.updateUserPassword(id, password);
+            const {userId, password} = req.body;
+            const user = await this.userUseCases.updateUserPassword(userId, password);
             if (user) {
-                res.json(user);
+                res.json({message: "Update Successful", user});
             } else {
                 res.status(404).json({error: 'User not found'});
             }

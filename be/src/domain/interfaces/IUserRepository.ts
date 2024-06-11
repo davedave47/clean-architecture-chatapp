@@ -4,7 +4,7 @@ export default interface IUserRepository {
     getUserByEmail(email: string): Promise<{user: User, password?: string}|null>;
     getAllUsers(): Promise<User[]>;
     getUserById(id: string): Promise<User|null>;
-    updateEmail(id: string, email: string): Promise<User|null>;
+    updateUser(user: {id:string, email?:string, username?:string }): Promise<User|null>;
     updatePassword(id: string, password: string): Promise<User|null>;
     deleteUser(id: string): Promise<boolean>;
 }
