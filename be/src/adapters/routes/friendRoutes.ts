@@ -1,5 +1,5 @@
 import FriendController from "../controllers/FriendController";
-import { passport } from "../middlewares";
+import { passport, cookieExtractor } from "../middlewares";
 
 export default function friendRoutes(controller: FriendController) {
     const friendRoutes = [
@@ -7,7 +7,7 @@ export default function friendRoutes(controller: FriendController) {
             path: "/",
             method: "get",
             handler: controller.getFriendsController,
-            middlewares: [passport.authenticate('jwt', {session: false})]
+            middlewares: [cookieExtractor]
         },
         {
             path: "/add",

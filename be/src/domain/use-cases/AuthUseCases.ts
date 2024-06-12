@@ -42,14 +42,6 @@ export default class AuthUseCases {
         }
         return null;
     }
-    async getUserByToken(token: string): Promise<User | null> {
-        const secret = process.env.JWT_SECRET;
-        if (!secret) {
-            throw new Error('JWT_SECRET is not set');
-        }
-        const decoded: any = jwt.verify(token, secret);
-        return this.userRepository.getUserById(decoded.id);
-    }
     async isAdmin(id: string): Promise<boolean> {
         const user = await this.userRepository.getUserById(id);
         return user?.isAdmin() || false;

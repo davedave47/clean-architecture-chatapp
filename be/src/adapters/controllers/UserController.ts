@@ -6,12 +6,22 @@ export default class UserController {
         private userUseCases: UserUseCases,
     ) {}
     getUserController = async (req: Request, res: Response) => {
-        if (req.user) {
-            res.json({user: req.user});
-            return;
-        }
         try {
-            const {id} = req.params;
+            const {id} = req.query;
+            if (id === undefined&&req.body.id) {
+                const user = await this.userUseCases.getUserById(req.body.id);
+                if (user) {
+                    res.json({user});
+                }
+                else {
+                    res.status(404).json({error: 'User not found'});
+                }
+                return;
+            }
+            if (typeof id !== 'string') {
+                res.status(400).json({error: 'Invalid id'});
+                return;
+            }
             const user = await this.userUseCases.getUserById(id);
             if (user) {
                 res.json({user});
@@ -25,8 +35,8 @@ export default class UserController {
         }
     }
     getUserByEmailController = async (req: Request, res: Response) => {
-        if (req.user) {
-            res.json({user: req.user});
+        if (req.body.user) {
+            res.json({user: req.body.user});
             return;
         }
         try {
@@ -55,23 +65,28 @@ export default class UserController {
     }
     updateUserController = async (req: Request, res: Response) => {
         try {
-            const user = await this.userUseCases.updateUser(req.body);
-            if (user) {
-                res.json({message: "Update Successful", user});
+            const {user, id, ... changes} = req.body;
+            const newUser = await this.userUseCases.updateUser({...user, ...changes});
+            if (newUser) {
+                res.json({message: "Update Successful", newUser});
             } else {
                 res.status(404).json({error: 'User not found'});
             }
         } catch (e) {
-            console.error('Error updating user email', e);
-            res.status(500).json({error: 'Error updating user email'});
+            const error = e as any;           
+            if (error.code === 11000) {
+                return res.status(409).json({error: 'Overlapping email or username'});
+            }
+            console.error('Error updating user info', e);
+            res.status(500).json({error: 'Error updating user info'});
         }
     }
     updateUserPasswordController = async (req: Request, res: Response) => {
         try {
-            const {userId, password} = req.body;
-            const user = await this.userUseCases.updateUserPassword(userId, password);
+            const {user, password} = req.body;
+            const newUser = await this.userUseCases.updateUserPassword(user.id, password);
             if (user) {
-                res.json({message: "Update Successful", user});
+                res.json({message: "Update Successful", newUser});
             } else {
                 res.status(404).json({error: 'User not found'});
             }
@@ -82,8 +97,8 @@ export default class UserController {
     }
     deleteUserController = async (req: Request, res: Response) => {
         try {
-            const {id} = req.params;
-            const result = await this.userUseCases.deleteUser(id);
+            const {user} = req.body;
+            const result = await this.userUseCases.deleteUser(user.id);
             if (result) {
                 res.json({message: 'User deleted successfully'});
             } else {

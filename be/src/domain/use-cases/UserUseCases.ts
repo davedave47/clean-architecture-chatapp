@@ -1,5 +1,6 @@
 import IUserRepository from "@src/domain/interfaces/IUserRepository";
 import { User } from "@domain/entities";
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 require('dotenv').config();
 export default class UserUseCases {
@@ -29,5 +30,4 @@ export default class UserUseCases {
     async deleteUser(id: string): Promise<boolean> {
         return this.userRepository.deleteUser(id);
     }
-
 }

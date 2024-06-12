@@ -6,16 +6,16 @@ class FriendController {
     ) {}
     addFriendController = async (req: Request, res: Response) => {
         try {
-            const {id, friendId} = req.body;
-            if (!id || !friendId) {
+            const {user, friendId} = req.body;
+            if (!user || !friendId) {
                 res.status(400).json({error: 'id and friendId are required'});
                 return;
             }
-            if (id === friendId) {
+            if (user.id === friendId) {
                 res.status(400).json({error: 'You cannot be friends with yourself'});
                 return;
             }
-            await this.friendUseCases.createFriend(id, friendId);
+            await this.friendUseCases.createFriend(user.id, friendId);
             res.json({message: 'Friend added successfully'});
         } catch (e) {     
             const error = e as any;           
@@ -31,16 +31,16 @@ class FriendController {
     }
     unFriendController = async (req: Request, res: Response) => {
         try {
-            const {id, friendId} = req.body;
-            if (!id || !friendId) {
+            const {user, friendId} = req.body;
+            if (!user || !friendId) {
                 res.status(400).json({error: 'id and friendId are required'});
                 return;
             }
-            if (id === friendId) {
+            if (user.id === friendId) {
                 res.status(400).json({error: 'You cannot unfriend yourself'});
                 return;
             }
-            const result = await this.friendUseCases.deleteFriend(id, friendId);
+            const result = await this.friendUseCases.deleteFriend(user.id, friendId);
             if (result) {
                 res.json({message: 'Friend removed successfully'});
             } else {
@@ -53,9 +53,19 @@ class FriendController {
     }
     getFriendsController = async (req: Request, res: Response) => {
         try {
-            const {id} = req.body;
-            if (!id) {
-                res.status(400).json({error: 'id is required'});
+            const {id} = req.query;
+            if (id === undefined&&req.body.id || id === req.body.id) {
+                const friends = await this.friendUseCases.getFriends(req.body.id);
+                if (friends) {
+                    res.json({friends});
+                }
+                else {
+                    res.status(404).json({error: 'User not found'});
+                }
+                return;
+            }
+            if (typeof id !== 'string') {
+                res.status(400).json({error: 'Invalid id'});
                 return;
             }
             const friends = await this.friendUseCases.getFriends(id);
