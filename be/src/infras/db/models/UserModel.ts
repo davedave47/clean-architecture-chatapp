@@ -1,15 +1,57 @@
-import chatappDB from "../config/chatappDB";
-import { Schema } from "mongoose";
-
-const UserSchema = {
-    name: {type: String, required: true, unique: true},
-    password: {type: String, required: true},
-    email: {type: String, required: true, unique: true},
-    createdAt: {type: Date, default: Date.now},
-    updatedAt: {type: Date, default: Date.now},
-    showFriends: {type: Boolean, default: false}
-};
-
-const UserModel = chatappDB.model('User', new Schema(UserSchema));
-
-export default UserModel;
+import { PropertyTypes } from 'neode';
+export default {
+    id: {
+        type: 'uuid' as PropertyTypes,
+        primary: true,
+    },
+    name: {
+        type: 'string' as PropertyTypes,
+        required: true,
+    },
+    email: {
+        type: 'string' as PropertyTypes,
+        required: true,
+    },
+    password: {
+        type: 'string' as PropertyTypes,
+        required: true,
+    },
+    createdAt: {
+        type: 'datetime' as PropertyTypes,
+        default: () => new Date(),
+    },
+    updatedAt: {
+        type: 'datetime' as PropertyTypes,
+        default: () => new Date(),
+    },
+    showFriends: {
+        type: 'boolean' as PropertyTypes,
+        default: true,
+    },
+    friends: {
+        type: 'relationship' as PropertyTypes,
+        relationship: 'FRIEND_OF',
+        direction: 'out',
+        target: 'User',
+        cascade: 'detach',
+        properties: {
+            createdAt: {
+                type: 'datetime',
+                default: () => new Date(),
+            },
+        },
+    },
+    conversations: {
+        type: 'relationship' as PropertyTypes,
+        relationship: 'PARTICIPANT',
+        direction: 'out',
+        target: 'Conversation',
+        cascade: 'detach',
+        properties: {
+            createdAt: {
+                type: 'datetime',
+                default: () => new Date(),
+            },
+        },
+    },
+}
