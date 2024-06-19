@@ -11,7 +11,7 @@ export default class UserController {
             if (id === undefined&&req.body.id) {
                 const user = await this.userUseCases.getUserById(req.body.id);
                 if (user) {
-                    res.json({user});
+                    res.json(user);
                 }
                 else {
                     res.status(404).json({error: 'User not found'});
@@ -43,7 +43,7 @@ export default class UserController {
             const {email} = req.params;
             const user = await this.userUseCases.getUserByEmail(email);
             if (user) {
-                res.json({user});
+                res.json(user);
             }
             else {
                 res.status(404).json({error: 'User not found'});
@@ -57,7 +57,7 @@ export default class UserController {
     getAllUsersController = async (req: Request, res: Response) => {
         try {
             const users = await this.userUseCases.getAllUsers();
-            res.json({users});
+            res.json(users);
         } catch (e) {
             console.error('Error getting all users', e);
             res.status(500).json({error: 'Error getting all users'});

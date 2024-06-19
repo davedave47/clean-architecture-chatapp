@@ -4,24 +4,16 @@ export default {
         type: 'uuid' as PropertyTypes,
         primary: true,
     },
-    participants: {
-        type: 'relationship' as PropertyTypes,
-        relationship: 'PARTICIPANT',
-        direction: 'in',
-        target: 'User',
-        properties: {
-            createdAt: {
-                type: 'datetime',
-                default: () => new Date(),
-            },
-        },
+    name: {
+        type: 'string' as PropertyTypes,
+        required: false,
     },
     createdAt: {
         type: 'datetime' as PropertyTypes,
         default: () => new Date(),
     },
-    updatedAt: {
+    lastMessageAt: {
         type: 'datetime' as PropertyTypes,
-        default: () => new Date(),
-    },
+        default: null,
+    }
 }

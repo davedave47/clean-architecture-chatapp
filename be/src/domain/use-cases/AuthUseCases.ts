@@ -8,9 +8,8 @@ require('dotenv').config();
 export default class AuthUseCases {
     constructor(
         private userRepository: IUserRepository,
-        private friendRepository: IFriendRepository
     ) {}
-    async createUser(name: string, email: string, password: string): Promise<{token: string, user: any}> {
+    async createUser(name: string, email: string, password: string): Promise<string> {
         if (!name || !email || !password) {
             throw new Error('Name, email and password are required');
         }
@@ -21,9 +20,9 @@ export default class AuthUseCases {
             throw new Error('JWT_SECRET is not set');
         }
         const token = jwt.sign({ id: newUser.id }, secret, { expiresIn: '1h' });
-        return {token, user: newUser};
+        return token;
     }
-    async login(email: string, password: string): Promise<{token: string, user: User} | null> {
+    async login(email: string, password: string): Promise<string | null> {
         const result = await this.userRepository.getUserByEmail(email);
         if (!result) {
             return null;
@@ -35,10 +34,8 @@ export default class AuthUseCases {
             if (!secret) {
                 throw new Error('JWT_SECRET is not set');
             }
-            const friends = await this.friendRepository.getFriends(user.id);
-            user.friends = friends.map(f => ({id: f.id, name: f.username}));
             const token = jwt.sign({ id: user.id }, secret, { expiresIn: '1h' });
-            return {token,user};
+            return token;
         }
         return null;
     }

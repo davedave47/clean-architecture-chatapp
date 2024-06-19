@@ -15,7 +15,7 @@ export default function authRoutes(controller: AuthController) {
     },
     {
         path: "/logout",
-        method: "get",
+        method: "post",
         handler: controller.logoutController,
         middlewares: [passport.authenticate('jwt', {session: false})]
     }

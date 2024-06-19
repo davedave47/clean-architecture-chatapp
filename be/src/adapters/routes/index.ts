@@ -1,5 +1,5 @@
 import userRoutes from "./userRoutes";
 import authRoutes from "./authRoutes";
 import friendRoutes from "./friendRoutes";
-
-export { userRoutes, authRoutes, friendRoutes}
+import conversationRoutes from "./conversationRoutes";
+export { userRoutes, authRoutes, friendRoutes, conversationRoutes}

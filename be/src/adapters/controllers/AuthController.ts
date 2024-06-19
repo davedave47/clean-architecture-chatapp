@@ -8,9 +8,8 @@ export default class AuthController {
         try{
             const {name, email, password} = req.body;
             console.log('Creating user', name, email, password)
-            const result = await this.authUseCases.createUser(name, email, password);
-            const {token, user } = result;
-            res.status(201).cookie('token', token, {httpOnly: true}).json({message: 'Registered successfully', user});
+            const token = await this.authUseCases.createUser(name, email, password);
+            res.status(201).cookie('token', token, {httpOnly: true, sameSite: "lax", maxAge: 60*1000*60}).json({message: 'Registered successfully'});
         }
         catch(e) {
             let status = 500;
@@ -27,10 +26,9 @@ export default class AuthController {
     }
     loginController = async (req: Request, res: Response) => {
         try {
-            const result = await this.authUseCases.login(req.body.email, req.body.password);
-            if (result) {
-                const {token, user} = result;
-                res.cookie('token', token, {httpOnly: true}).json({message: 'Logged in successfully', user});
+            const token = await this.authUseCases.login(req.body.email, req.body.password);
+            if (token) {
+                res.status(201).cookie('token', token, {httpOnly: true, sameSite: "lax", maxAge: 60*1000*60}).json({message: 'Logged in successfully'});
             } else {
                 res.status(401).json({ error: 'Invalid email or password' });
             }

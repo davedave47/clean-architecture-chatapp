@@ -6,7 +6,7 @@ import { authRoutes } from '@src/adapters/routes';
 
 const authRouter = Router()
 
-const authController = new AuthController(new AuthUseCases(new UserRepository(), new FriendRepository()));
+const authController = new AuthController(new AuthUseCases(new UserRepository()));
 
 const authRoutesList = authRoutes(authController);
 

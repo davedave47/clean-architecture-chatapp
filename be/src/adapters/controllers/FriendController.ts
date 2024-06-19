@@ -57,7 +57,7 @@ class FriendController {
             if (id === undefined&&req.body.id || id === req.body.id) {
                 const friends = await this.friendUseCases.getFriends(req.body.id);
                 if (friends) {
-                    res.json({friends});
+                    res.json(friends);
                 }
                 else {
                     res.status(404).json({error: 'User not found'});

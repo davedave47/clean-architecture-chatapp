@@ -1,7 +1,7 @@
 import { UserRepository, FriendRepository } from "@src/infras/db/repository";
 import { AuthUseCases } from "@src/domain/use-cases";
 
-const authUseCases = new AuthUseCases(new UserRepository(), new FriendRepository());
+const authUseCases = new AuthUseCases(new UserRepository());
 
 export default async function isAdmin(req: any, res: any, next: any) {
    const user = req.body.user;
