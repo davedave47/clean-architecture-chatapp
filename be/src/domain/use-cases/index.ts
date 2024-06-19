@@ -1,3 +1,5 @@
 import UserUseCases from "./UserUseCases";
-
-export { UserUseCases}
+import FriendUseCases from "./FriendUseCases";
+import AuthUseCases from "./AuthUseCases";
+import ConversationUseCases from "./ConversationUseCases";
+export { UserUseCases, FriendUseCases, AuthUseCases, ConversationUseCases}

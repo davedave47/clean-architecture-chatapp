@@ -1,3 +1,4 @@
 import UserRepository from "./UserRepository";
-
-export { UserRepository}
+import FriendRepository from "./FriendRepository";
+import ConversationRepository from "./ConversationRepository";
+export { UserRepository, FriendRepository, ConversationRepository}

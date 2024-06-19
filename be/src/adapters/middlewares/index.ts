@@ -1,4 +1,5 @@
-import createPassportMiddleware from "./auth/passport";
+import passport from "./auth/passport";
 import isAdmin from "./auth/isAdmin";
 import isSelforAdmin from "./auth/isSelforAdmin";
-export { createPassportMiddleware as passportMiddleware, isAdmin, isSelforAdmin };
+import cookieExtractor from "./auth/cookieExtractor"
+export {  passport, isAdmin, isSelforAdmin, cookieExtractor };

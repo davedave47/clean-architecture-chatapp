@@ -1,22 +1,30 @@
-import {drizzle} from 'drizzle-orm/node-postgres';
-import {Pool} from 'pg';
-import * as schema from './schema';
-import * as drizzleorm from 'drizzle-orm'
-require('dotenv').config();
+import Neode from "neode";
+require("dotenv").config();
+import { User, Conversation } from "../models";
 
-const dbconfig = {
-    user: process.env.DB_USER!,
-    host: process.env.DB_HOST!,
-    database: process.env.DB_NAME!,
-    password: process.env.DB_PASSWORD!,
-    port: parseInt(process.env.DB_PORT || '5432')
+function createConnection() {
+    // URI examples: 'neo4j://localhost', 'neo4j+s://xxx.databases.neo4j.io'
+    const URI = process.env.NEO4J_URI || 'neo4j://localhost';
+    const USER = process.env.NEO4J_USERNAME || 'neo4j';
+    const PASSWORD = process.env.NEO4J_PASSWORD || 'neo4j';
+    try {
+      const driver = new Neode(URI, USER, PASSWORD)
+      driver.session().run('CALL dbms.components()')
+      console.log('Connected to Neo4j')
+      return driver;
+    } catch(e) {
+        const err = e as any
+      console.log(`Connection error\n${err}`)
+    }
+};
+
+const chatappDB = createConnection();
+
+if (!chatappDB) {
+    throw new Error('Failed to connect to Neo4j')
 }
-function connectDB(config: {user: string, host: string, database: string, password: string, port: number}) {
-    const pool = new Pool(config);
-    console.log('Connected to database');
-    return drizzle(pool, {schema, logger: true});
-}
 
-const chatappDB = connectDB(dbconfig);
+chatappDB.model('User', User);
+chatappDB.model('Conversation', Conversation);
 
-export default chatappDB;  
+export default chatappDB as Neode;

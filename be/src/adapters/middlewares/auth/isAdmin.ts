@@ -1,12 +1,13 @@
-import { UserUseCases } from "@src/domain/use-cases";
-export default function isAdmin(userUseCases: UserUseCases) {
-        return async (req: any, res: any, next: any) => {
-        const token = req.cookies['token'];
-        const user = await userUseCases.getUserByToken(token);
-        if (user && user.isAdmin()) {
-            next();
-        } else {
-            res.status(403).json({error: 'Not Admin User'});
-        }
+import { UserRepository, FriendRepository } from "@src/infras/db/repository";
+import { AuthUseCases } from "@src/domain/use-cases";
+
+const authUseCases = new AuthUseCases(new UserRepository());
+
+export default async function isAdmin(req: any, res: any, next: any) {
+   const user = req.body.user;
+    if (await user.isAdmin()) {
+        next();
+    } else {
+        res.status(403).json({error: 'Not Admin User'});
     }
-}
+}        
