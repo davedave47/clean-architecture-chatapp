@@ -20,6 +20,12 @@ export default function friendRoutes(controller: FriendController) {
             method: "post",
             handler: controller.unFriendController,
             middlewares: [passport.authenticate('jwt', {session: false})]
+        },
+        {
+            path: "/requests",
+            method: "get",
+            handler: controller.getFriendRequestsController,
+            middlewares: [passport.authenticate('jwt', {session: false})]
         }
     ]
     return friendRoutes;

@@ -6,7 +6,9 @@ function userRoutes(controller: UserController): IRoute[] {
     {
         path: "/",
         method: "get",
-        handler: controller.getUserController,
+        handler: (req: any, res: any) => {
+            req.query.name ? controller.getUserByNameController(req, res) : controller.getUserController(req, res);
+        },
         middlewares: [cookieExtractor]
     },
     {

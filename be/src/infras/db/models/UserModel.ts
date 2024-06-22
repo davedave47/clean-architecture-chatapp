@@ -54,4 +54,17 @@ export default {
             },
         },
     },
+    request: {
+        type: 'relationship' as PropertyTypes,
+        relationship: 'REQUEST',
+        direction: 'out',
+        target: 'User',
+        cascade: 'detach',
+        properties: {
+            createdAt: {
+                type: 'datetime',
+                default: () => new Date(),
+            },
+        },
+    }
 }

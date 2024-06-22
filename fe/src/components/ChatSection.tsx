@@ -2,16 +2,21 @@ import { IMessage, IConversation } from "../interfaces";
 import Message from "./Message";
 import ChatSubmit from "./ChatSubmit";
 import useSocket from "../hooks/useSocket";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import useFetchData from "../hooks/useFetchData";
+import styles from '../styles/ChatSection.module.scss';
 
-export default function ChatSection({conversation}: {conversation: IConversation}) {
+export default function ChatSection({conversation, onReceive}: {conversation: IConversation, onReceive: (message: IMessage) => void}) {
     const socket = useSocket();
     const [messages, setMessages] = useState<IMessage[]>([]);
-    const url = `http://localhost:3000/api/conversation/messages`;
+    const [isLoading, setIsLoading] = useState(false);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const canScroll = useRef(true);
+    const skip = useRef(0);
+    const url = `api/conversation/messages`;
     const option: RequestInit = useMemo(() => ({
         method: 'POST',
-        body: JSON.stringify({conversationId: conversation.id, amount: 10, skip: 0}),
+        body: JSON.stringify({conversationId: conversation.id, amount: 20, skip: 0}),
         headers: {
             'Content-Type': 'application/json'
         },
@@ -23,6 +28,11 @@ export default function ChatSection({conversation}: {conversation: IConversation
             return;
         }
         setMessages(data);
+        skip.current += 20;
+        return () => {
+            skip.current = 0;
+            canScroll.current = true;
+        }
     }, [data]);
     useEffect(() => {
         if (!socket) {
@@ -33,24 +43,23 @@ export default function ChatSection({conversation}: {conversation: IConversation
             console.log("received: ", message)
             if (message.conversationId === conversation.id) {
                 setMessages(prevMessages => [...prevMessages, message]);
+                canScroll.current = true;
             }
+            onReceive(message);
+            skip.current += 1;
         });
         console.log("chat message listener added")
         return () => {
             socket.off('chat message');
             console.log("chat message listener removed")
         }
-    }, [socket, conversation.id]);
+    }, [socket, conversation.id, onReceive]);
 
-    if (loading) {
-        return <p>Loading...</p>;
-    }
-    if (error) {
-        return <p>Error: {error.message}</p>;
-    }
-    if (!messages) {
-        return <p>Loading...</p>;
-    }
+    useEffect(() => {
+        if (messagesEndRef.current&&canScroll.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
+        }
+    }, [messages]);
     function handleSend(message: string) {
         if (!socket) {
             return;
@@ -60,17 +69,42 @@ export default function ChatSection({conversation}: {conversation: IConversation
             return;
         }
     }
+    const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
+        const { scrollTop } = e.currentTarget;
+        if (scrollTop === 0 && !isLoading) {
+            const topMessage = e.currentTarget.firstChild;
+            setIsLoading(true);
+            console.log("fetching messages")
+            const result = await fetch(import.meta.env.VITE_BACKEND_URL+url, {
+                ...option,
+                body: JSON.stringify({conversationId: conversation.id, amount: 10, skip: skip.current})
+            })
+            const data = await result.json();
+            skip.current += 10;
+            setMessages(prevMessages => [...data, ...prevMessages]);
+            setIsLoading(false);     
+            canScroll.current = false;   
+            if (topMessage) {
+                (topMessage as HTMLElement).scrollIntoView();
+            }    
+        }
+    }
     return (
-        <div style={
-            {
-                display: 'flex',
-                flexDirection: 'column',
+        <>
+            {   
+                loading ? <p>Loading...</p>:
+                error ? <p>Error: {error.message}</p>:
+                <>
+                    <div className={styles.messagesContainer} onScroll={handleScroll}>
+                        {isLoading && <p>Loading...</p>}
+                        {messages.map((message: IMessage) => {
+                            return <Message key={message.id} message={message} />
+                        })}
+                        <div ref={messagesEndRef}> </div>
+                    </div>
+                    <ChatSubmit onSend={handleSend} />
+                </>
             }
-        }>
-            {messages.map((message: IMessage) => {
-                return <Message key={message.id} message={message} />
-            })}
-            <ChatSubmit onSend={handleSend} />
-        </div>
+        </>
     )
 }

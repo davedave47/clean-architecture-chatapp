@@ -62,11 +62,11 @@ export default class ConversationRepository implements IConversationRepository {
     }
     async createConversation(users: User[]): Promise<Conversation> {
         const query = `
-        CREATE (c:Conversation {createdAt: $createdAt})
+        CREATE (c:Conversation {createdAt: $createdAt, id: randomUUID()})
         WITH c
         UNWIND $userIds AS userId
         MATCH (u:User {id: userId})
-        CREATE (c)-[:PARTICIPANT]->(u)
+        CREATE (c)<-[:PARTICIPANT]-(u)
         RETURN c
     `;
         const userIds = users.map(user => user.id);
@@ -76,7 +76,6 @@ export default class ConversationRepository implements IConversationRepository {
         return new Conversation(
             conversation.properties.id,
             users,
-            [],
             conversation.properties.createdAt
         )
     }

@@ -16,11 +16,13 @@ export default function Message({ message }: { message: IMessage}) {
             
         }}>
             <div style={
-                {
-                    fontSize: '0.8em',
-                    color: 'gray',
-                }
-            }>{message.createdAt.substring(11,16)}</div>
+            {
+            fontSize: '0.8em',
+            color: 'gray',
+            }
+            }>
+                {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}
+            </div>
             <span className="message-sender">
                 {(isOwnMessage ? 'You' : message.sender.username) + ': '}
             </span>

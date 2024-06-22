@@ -1,20 +1,22 @@
-import { createContext, useEffect, useRef, ReactNode } from 'react';
+import { createContext, useEffect, useState, ReactNode } from 'react';
 import io, {Socket} from 'socket.io-client';
 
 export const SocketContext = createContext<Socket | undefined>(undefined);
 
 export function SocketProvider({ children }: { children: ReactNode}) {
-  const socket = useRef<Socket|undefined>();
+  const [socket, setSocket] = useState<Socket | undefined>();
   useEffect(() => {
-    socket.current = io("http://localhost:3000", { withCredentials: true });
+    const newSocket = io(import.meta.env.VITE_BACKEND_URL, { withCredentials: true });
+    newSocket.on('connect', () => {
+      setSocket(newSocket);
+    });
     return () => {
-      if (socket.current)
-      socket.current.disconnect();
+      newSocket.disconnect();
     };
   }, []);
 
   return (
-    <SocketContext.Provider value={socket.current!}>
+    <SocketContext.Provider value={socket}>
       {children}
     </SocketContext.Provider>
   );

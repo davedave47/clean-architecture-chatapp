@@ -44,6 +44,48 @@ class FriendRepository implements IFriendRepository {
         const result = await chatappDB.writeCypher(query, params);
         return result.summary.counters.updates().relationshipsDeleted === 1;
     }
+    async requestFriend(userId: string, friendId: string): Promise<boolean> {
+        const query = `
+        MATCH (user1:User {id: $userId}), (user2:User {id: $friendId})
+        MERGE (user1)-[r:REQUEST]->(user2)
+        `
+        const params = { userId, friendId };
+        const result = await chatappDB.writeCypher(query, params);
+        return result.summary.counters.updates().relationshipsCreated === 1;
+    }
+    async rejectFriendRequest(userId: string, friendId: string): Promise<boolean> {
+        const query = `
+        MATCH (user1:User {id: $userId})<-[r:REQUEST]-(user2:User {id: $friendId})
+        DELETE r
+    `;
+        const params = { userId, friendId };
+        const result = await chatappDB.writeCypher(query, params);
+        return result.summary.counters.updates().relationshipsDeleted === 1;
+    }
+    async getReceivedFriendRequests(userId: string): Promise<User[]> {
+        const query = `
+        MATCH (user:User {id: $userId})<-[r:REQUEST]-(requester:User)
+        RETURN requester
+    `;
+        const params = { userId };
+        const result = await chatappDB.cypher(query, params);
+        return result.records.map(record => {
+            const {id, name, email} = record.get('requester').properties;
+            return new User(id, name, email);
+        });
+    }
+    async getSentFriendRequests(userId: string): Promise<User[]> {
+        const query = `
+        MATCH (user:User {id: $userId})-[r:REQUEST]->(requestee:User)
+        RETURN requestee
+    `;
+        const params = { userId };
+        const result = await chatappDB.cypher(query, params);
+        return result.records.map(record => {
+            const {id, name, email} = record.get('requestee').properties;
+            return new User(id, name, email);
+        });
+    }
 }
 
 export default FriendRepository;

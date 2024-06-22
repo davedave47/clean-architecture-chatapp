@@ -4,8 +4,8 @@ export default class Conversation {
   constructor(
     public readonly id: string,
     public readonly participants: User[],
-    public readonly messages: Message[],
     public readonly createdAt: Date,
     public readonly name?: string,
+    public readonly lastMessage?: Message,
   ) {}
 }

@@ -19,7 +19,6 @@ class ConversationController {
         try {
             const { conversationId, amount, skip, user } = req.body;
             if (conversationId == null || amount == null || skip == null || user == null) {
-                console.log('conversationId, amount, skip, user: ', conversationId, amount, skip, user);
                 res.status(400).json({ message: 'conversationId, amount, skip, and user are required' });
                 return;
             }

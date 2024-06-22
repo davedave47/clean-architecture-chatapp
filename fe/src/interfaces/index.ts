@@ -20,7 +20,7 @@ export interface IMessage {
 export interface IConversation {
     id: string;
     participants: IUser[];
-    messages: IMessage[];
+    lastMessage?: IMessage;
     createdAt: Date;
     name?: string;
 }

@@ -7,6 +7,9 @@ export default class UserUseCases {
     constructor(
         private userRepository: IUserRepository,
     ) {}
+    async getUserByName(name: string): Promise<User[] | null> {
+        return this.userRepository.getUserByName(name);
+    }
     async getUserByEmail(email: string): Promise<User | null> {
         const result = await this.userRepository.getUserByEmail(email);
         if (result) {

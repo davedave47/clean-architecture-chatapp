@@ -4,6 +4,20 @@ class FriendController {
     constructor(
         private friendUseCases: FriendUseCases
     ) {}
+    getFriendRequestsController = async (req: Request, res: Response) => {
+        try {
+            const {user} = req.body;
+            if (!user) {
+                res.status(400).json({error: 'User not found'});
+                return;
+            }
+            const friendRequests = await this.friendUseCases.getFriendRequests(user.id);
+            res.status(201).json(friendRequests);
+        } catch (e) {
+            console.error('Error getting friend requests', e);
+            res.status(500).json({error: 'Error getting friend requests'});
+        }
+    }
     addFriendController = async (req: Request, res: Response) => {
         try {
             const {user, friendId} = req.body;

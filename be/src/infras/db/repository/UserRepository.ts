@@ -13,7 +13,30 @@ export default class UserRepository implements IUserRepository {
             user.get('email')
         );
     }
-
+    async getUserByName(name: string): Promise<User[] | null> {
+        const query = `
+            MATCH (user:User)
+            WHERE user.name <> 'admin'
+            AND (toLower(user.name) = toLower($name) 
+            OR toLower(user.name) STARTS WITH toLower($name) 
+            OR toLower(user.name) CONTAINS toLower(' ' + $name) 
+            OR toLower(user.name) CONTAINS toLower($name))
+            RETURN user, 
+            CASE 
+                WHEN toLower(user.name) = toLower($name) THEN 1
+                WHEN toLower(user.name) STARTS WITH toLower($name) THEN 2
+                WHEN toLower(user.name) CONTAINS toLower(' ' + $name) THEN 2
+                WHEN toLower(user.name) CONTAINS toLower($name) THEN 3
+            END as priority
+            ORDER BY priority
+        `
+        const params = { name };
+        const result = await chatappDB.cypher(query, params);
+        return result.records.map(record => {
+            const properties = record.get('user').properties;
+            return new User(properties.id, properties.name, properties.email);
+        });
+    }
     async getUserByEmail(email: string): Promise<{user: User, password: string} | null> {
         const user = await chatappDB.first('User', 'email', email);
         if (!user) {
@@ -40,7 +63,7 @@ export default class UserRepository implements IUserRepository {
 
     async getUserById(id: string): Promise<User | null> {
         const user = await chatappDB.first('User', 'id', id);
-        if (!user) {
+        if (!user||user.get('name')==='admin') {
             return null;
         }
         return new User(

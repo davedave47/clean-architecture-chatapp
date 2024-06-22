@@ -5,6 +5,26 @@ export default class UserController {
     constructor(
         private userUseCases: UserUseCases,
     ) {}
+    getUserByNameController = async (req: Request, res: Response) => {
+        try {
+            const { name } = req.query;
+            if (typeof name !== 'string') {
+                res.status(400).json({error: 'Invalid name'});
+                return;
+            }
+            const user = await this.userUseCases.getUserByName(name);
+            if (user) {
+                res.json(user);
+            }
+            else {
+                res.status(404).json({error: 'User not found'});
+            }
+        } 
+        catch (error) {
+            res.status(500).json({error: 'Server error'});
+            console.error('Error getting user by name', error);
+        }
+    }
     getUserController = async (req: Request, res: Response) => {
         try {
             const {id} = req.query;

@@ -1,35 +1,39 @@
 
 import { useNavigate } from "react-router-dom";
-import { MouseEvent, useEffect } from "react";
+import { MouseEvent, useEffect, useState, memo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser, logOut } from "../redux/userSlice";
-import { SocketProvider } from "../context/SocketContext";
+import { logOut } from "../redux/userSlice";
+import { FriendProvider } from "../context/FriendContext";
+import  {RequestProvider} from "../context/RequestContext";
 import ConversationSection from "../components/ConversationSection";
 import { RootState } from "../redux";
-import { useAuth } from "../hooks/useAth";
+import { useAuth } from "../hooks/useAuth";
+import Friends from "../components/Friends";
+import useSocket from "../hooks/useSocket";
+
+const MemoizedConversationSection = memo(ConversationSection);
+
+
 export default function ChatPage() {
     const nagivate = useNavigate();
     const dispatch = useDispatch();
     const user = useSelector((state: RootState) => state.user);
-    const result = useAuth()
-    
-    // const [data, loading, error] = useFetchData<IUser>("http://localhost:3000/api/user", {
-    //     credentials: 'include'
-    // });
-
+    const [showFriends, setShowFriends] = useState(false);
+    const {result, loading} = useAuth()
+    const socket = useSocket()
     useEffect(() => {
-        if (result) {
-            dispatch(setUser(result));
+        if (!result&&!loading) {
+            nagivate('/login');
         }
-        console.log("chat page mounted")
-    }, [result, dispatch]);
-    if (!result) {
-        return <p>Loading...</p>
-    } 
-
+    }, [result, dispatch, loading, nagivate]);
+    useEffect(()=>{
+        if (socket) {
+            socket.emit("login")
+        }
+    },[socket])
     async function handleSubmit(e: MouseEvent<HTMLButtonElement>) {
         e.preventDefault();
-        const response = await fetch('http://localhost:3000/api/logout', {
+        const response = await fetch(import.meta.env.VITE_BACKEND_URL+'api/logout', {
             method: 'POST',
             credentials: 'include'
         });        
@@ -39,14 +43,42 @@ export default function ChatPage() {
         }
     }
 
-    return (
-        <SocketProvider>
-            <div>
-                <div>Welcome {user.username}</div>
-                <ConversationSection />
-                <button onClick={handleSubmit}>Log out</button>
-            </div>
-        </SocketProvider>
+    if (loading||!socket)  {
+        return <div>Loading...</div>
+    }
 
+    return (
+            <div style = {
+                {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100vh',
+                    width: '100vw',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                }
+            
+            }>
+                <div style={
+                    {
+                        display: 'flex',
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        width: '20%',
+                        padding: '10px',
+                    }
+                
+                }>
+                    <span>Welcome {user.username}</span>
+                    <button onClick={()=>{setShowFriends(true)}}>Friends</button>
+                    <button onClick={handleSubmit}>Log out</button>
+                </div>
+                <FriendProvider>
+                    <RequestProvider>
+                        {showFriends && <Friends onCancel={() => setShowFriends(false)} />}
+                    </RequestProvider>
+                    <MemoizedConversationSection/>
+                </FriendProvider>
+            </div>
     )
 }
