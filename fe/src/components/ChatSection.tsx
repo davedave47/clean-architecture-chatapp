@@ -5,15 +5,18 @@ import useSocket from "../hooks/useSocket";
 import { useEffect, useState, useMemo, useRef } from "react";
 import useFetchData from "../hooks/useFetchData";
 import styles from '../styles/ChatSection.module.scss';
+import {useDispatch} from 'react-redux';
+import { setLatestMessage } from "../redux/convoSlice";
 
-export default function ChatSection({conversation, onReceive}: {conversation: IConversation, onReceive: (message: IMessage) => void}) {
+export default function ChatSection({conversation}: {conversation: IConversation}) {
+    const dispatch = useDispatch();
     const socket = useSocket();
     const [messages, setMessages] = useState<IMessage[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const canScroll = useRef(true);
     const skip = useRef(0);
-    const url = `api/conversation/messages`;
+    const url = `/api/conversation/messages`;
     const option: RequestInit = useMemo(() => ({
         method: 'POST',
         body: JSON.stringify({conversationId: conversation.id, amount: 20, skip: 0}),
@@ -45,7 +48,7 @@ export default function ChatSection({conversation, onReceive}: {conversation: IC
                 setMessages(prevMessages => [...prevMessages, message]);
                 canScroll.current = true;
             }
-            onReceive(message);
+            dispatch(setLatestMessage(message))
             skip.current += 1;
         });
         console.log("chat message listener added")
@@ -53,7 +56,7 @@ export default function ChatSection({conversation, onReceive}: {conversation: IC
             socket.off('chat message');
             console.log("chat message listener removed")
         }
-    }, [socket, conversation.id, onReceive]);
+    }, [socket, conversation, dispatch]);
 
     useEffect(() => {
         if (messagesEndRef.current&&canScroll.current) {

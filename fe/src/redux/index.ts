@@ -1,8 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./userSlice";
+import convoReducer from "./convoSlice";
+import friendReducer from "./friendSlice";
+import requestReducer from "./requestSlice";
 const store = configureStore({
     reducer: {
         user: userReducer,
+        convo: convoReducer,
+        friend: friendReducer,
+        request: requestReducer
     },
 });
 

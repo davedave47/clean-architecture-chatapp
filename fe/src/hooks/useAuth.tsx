@@ -8,7 +8,7 @@ export function useAuth() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(import.meta.env.VITE_BACKEND_URL+'api/user', {
+                const response = await fetch(import.meta.env.VITE_BACKEND_URL+'/api/user', {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'

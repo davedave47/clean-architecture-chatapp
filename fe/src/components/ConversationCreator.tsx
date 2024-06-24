@@ -1,17 +1,27 @@
-import useFriend from "../hooks/useFriend";
 import { useState, useEffect } from "react";
 import { IUser } from "../interfaces";
 import styles from "../styles/Coversations.module.scss"
-export function ConversationCreator({onCreate}: {onCreate: (participants: IUser[]) => void}) {
-    const result = useFriend();
-    const [uninvited, setUninvited] = useState<IUser[]|undefined>(undefined)
+import { useSelector, useDispatch } from "react-redux";
+import { RootState, AppDispatch } from "../redux";
+import { fetchAllFriends } from "../redux/friendSlice";
+export function ConversationCreator({onCancel, onCreate}: {onCancel: () => void, onCreate: (participants: IUser[]) => void}) {
+    const {friends, error: e} = useSelector((state: RootState) => state.friend);
+    const dispatch = useDispatch<AppDispatch>();
+    const [uninvited, setUninvited] = useState<IUser[]>([])
     const [participant, setParticipants] = useState<IUser[]>([])
     const [error, setError] = useState('')
     useEffect(()=> {
-        if (!result) return;
-        const {friends} = result;
-        setUninvited(friends);
-    }, [result])
+        if (friends) {
+            setUninvited(friends)
+        }
+        else {
+            dispatch(fetchAllFriends()).then((data) => {
+                if (data.payload) {
+                    setUninvited(data.payload)
+                }
+            })
+        }
+    }, [dispatch, friends])
     function handleCreate() {
         if (participant.length > 0) {
             onCreate(participant);
@@ -20,17 +30,24 @@ export function ConversationCreator({onCreate}: {onCreate: (participants: IUser[
             setError("Empty convo")
         }
     }
-    if (!result) {
-        return <p>Loading...</p>
+    function handleClear() {
+        if (!friends) {
+            return;
+        }
+        setParticipants([]);
+        setUninvited(friends);
     }
     return(
         <div className={styles.container}>
             <div className={styles.buttons}>
+                <button onClick={handleClear}>Clear</button>
                 <button onClick={handleCreate}>Create!</button>
+                <button onClick={onCancel}>Cancel</button>
             </div>
             <div className={styles.error}>
                 {error}
             </div>
+            {e ? <p>{e}</p> : friends ?
             <div className={styles.userContainer}>
                 <div className={styles.users}>
                     <div className={styles.title}>Participants</div>
@@ -60,7 +77,9 @@ export function ConversationCreator({onCreate}: {onCreate: (participants: IUser[
                     )
                     }):<p>Loading</p>}
                 </div>
-            </div>
+            </div>:
+            <p>Loading...</p>
+        }
         </div>
     )
 

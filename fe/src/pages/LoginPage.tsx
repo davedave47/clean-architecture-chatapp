@@ -22,7 +22,7 @@ export default function LoginPage(){
             setError("Please fill out all fields")
             return;
         }
-        const response = await fetch(import.meta.env.VITE_BACKEND_URL+'api/login', {
+        const response = await fetch(import.meta.env.VITE_BACKEND_URL+'/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

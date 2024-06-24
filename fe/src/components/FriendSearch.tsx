@@ -1,17 +1,14 @@
 import { useState, useRef, memo} from "react";
 import { IUser } from "../interfaces";
 import {useDebounce} from "../hooks/useDebounce";
-import useFriend from "../hooks/useFriend";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../redux";
 import useSocket from "../hooks/useSocket";
+import { removeFriend} from "../redux/friendSlice";
 import styles from '../styles/Friends.module.scss';
+import { sendRequest, removeRequest, rejectRequest, acceptRequest,  } from "../redux/requestSlice";
 export default function FriendSearch(){
-    const socket = useSocket();
-    const currentUser = useSelector((state: RootState) => state.user);
-    const result = useFriend();
     const prevSearch = useRef('');
-    const {friends, setFriends} = result!;
     const [isSearching, setIsSearching] = useState(false);
     const [users, setUsers] = useState<IUser[]>([]);
     const [search, setSearch] = useDebounce('', async () => { 
@@ -23,7 +20,7 @@ export default function FriendSearch(){
             return;
         }
         setIsSearching(true);
-        const response = await fetch(import.meta.env.VITE_BACKEND_URL+`api/user?name=${search}`, {
+        const response = await fetch(import.meta.env.VITE_BACKEND_URL+`/api/user?name=${search}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -41,38 +38,51 @@ export default function FriendSearch(){
     function handleChange(e: React.ChangeEvent<HTMLInputElement>){
         setSearch(e.target.value);
     }
-    async function handleRemove(id: string){
-        const response = await fetch(import.meta.env.VITE_BACKEND_URL+`api/friend/remove`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({friendId: id}),
-            credentials: 'include'
-        });
-        if (response.ok) {
-            setFriends(prevFriends => prevFriends!.filter(friend => friend.id !== id));
-        }
-    }
-    async function handleAdd(id: string){
-        if (!socket) return;
-        socket.emit("request", id)
-    }
     return (
         <div className={styles.search}>
             <input type="text" placeholder="Enter name or id" onChange={handleChange}/>
             <div className={styles.result}>
-                {isSearching ? <p>Searching...</p> : <UserList users={users} friends={friends!} currentUser={currentUser.id!} onRemove={handleRemove} onAdd={handleAdd}/>}
+                {isSearching ? <p>Searching...</p> : <UserList users={users}/>}
             </div>
         </div>
     )
 }
 
-const UserList = memo(({ users, friends, currentUser, onRemove, onAdd }: {users: IUser[], friends: IUser[], currentUser: string, onRemove:(id: string)=>void, onAdd:(id:string)=>void}) => {
+const UserList = memo(({users}: {users: IUser[]}) => {
+    const currentUser = useSelector((state: RootState) => state.user);
+    const {friends} = useSelector((state: RootState) => state.friend);
+    const {requests} = useSelector((state: RootState) => state.request);
+    const socket = useSocket();
+    const dispatch = useDispatch();
+    function handleAdd(user: IUser){
+        if (!socket) return;
+        socket.emit("request", user.id)
+        dispatch(sendRequest(user));
+    }
+    function handleUnfriend(user: IUser){
+        if (!socket) return;
+        socket.emit("unfriend", user.id)
+        dispatch(removeFriend(user.id));
+    }
+    function handleCancel(user: IUser){
+        if (!socket) return;
+        socket.emit("remove request", user.id);
+        dispatch(removeRequest(user));
+    }
+    function handAccept(user: IUser){
+        if (!socket) return;
+        socket.emit('accept', user.id);
+        dispatch(acceptRequest(user));
+    }
+    function handleReject(user: IUser){
+        if (!socket) return;
+        socket.emit('reject', user.id);
+        dispatch(rejectRequest(user));
+    }
     return (
     <>
         {users.length > 0 ? users.map((user: IUser) => {
-            if (user.id === currentUser) return (
+            if (user.id === currentUser.id) return (
                 <div key={user.id} className={styles.items}>
                     <p>{user.username}</p>
                     <p>You</p>
@@ -82,8 +92,11 @@ const UserList = memo(({ users, friends, currentUser, onRemove, onAdd }: {users:
                 <div key={user.id} className={styles.items}>
                     <p>{user.username}</p>
                     {friends!.some(friend => friend.id === user.id) ? 
-                    <button className={styles.remove} onClick={() => {onRemove(user.id)}}>Remove</button> :
-                    <button className={styles.add} onClick={() => {onAdd(user.id)}}>Add</button>}
+                    <button className={styles.remove} onClick={() => {handleUnfriend(user)}}>Unfriend</button> :
+                    requests?.sent.some(request => request.id === user.id) ? <button onClick={()=>{handleCancel(user)}}>Cancel Request</button> : 
+                    requests?.received.some(request => request.id === user.id) ? <><button onClick={()=>{handAccept(user)}}>Accept</button><button onClick={()=>{handleReject(user)}}>Reject</button></> :
+                    <button onClick={() => {handleAdd(user)}}>Request</button>
+                    }
                 </div>
             )
         }) : <p className={styles.error}>No users found</p>}
