@@ -21,7 +21,7 @@ const conversationUseCases = new ConversationUseCases(conversationRepository);
 const httpServer = createServer(app);
 const io = new Server(httpServer,{
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_URL!,
     methods: ["GET", "POST"],
     credentials: true
   }
@@ -53,22 +53,26 @@ io.on("connection", async (socket) => {
   }
   console.log(user.id + " connected")
   socket.on("login", async () => {
-    console.log("hi")
+    console.log("---------------------------------------------------------------------------------------\nhi")
     //Authentification
     if (user === null) {
       console.log('User not authenticated')
       return socket.emit('authentication error');
     }
     await onlineCache.set(user.id, socket.id);
-    const friends = await friendUseCases.getFriends(user.id);
-    const talkedToUsers = await conversationUseCases.getTalkedToUsers(user.id);
-    const mergedUsers = [...new Set([...friends, ...talkedToUsers])];
-    mergedUsers.forEach(async (user) => {
-      const userSocketId = await onlineCache.get(user.id);
+    const mergedUsers = await friendUseCases.getFriends(user.id);
+    const online: User[] = []
+    const promise = mergedUsers.map(async (u) => {
+      const userSocketId = await onlineCache.get(u.id);
       if (userSocketId) {
-        socket.to(userSocketId).emit('user logged in', user.id);
+        console.log(u, "is online")
+        socket.to(userSocketId).emit('user logged on', user);
+        online.push(u);
       }
     });
+    await Promise.all(promise);
+    console.log("oneline friends",online)
+    socket.emit('online', online);
     console.log('User logged in', user.id);
   });
   socket.on("chat message", async (data) => {
@@ -97,13 +101,11 @@ io.on("connection", async (socket) => {
       return;
     }
     console.log('User logged out', user.id)
-      const friends = await friendUseCases.getFriends(user.id);
-      const talkedToUsers = await conversationUseCases.getTalkedToUsers(user.id);
-      const mergedUsers = [...new Set([...friends, ...talkedToUsers])];
-      mergedUsers.forEach(async (user) => {
-      const userSocketId = await onlineCache.get(user.id);
+      const mergedUsers  = await friendUseCases.getFriends(user.id);
+      mergedUsers.forEach(async (u) => {
+      const userSocketId = await onlineCache.get(u.id);
       if (userSocketId) {
-        socket.to(userSocketId).emit('user logged out', user.id);
+        socket.to(userSocketId).emit('user logged out', user);
         }
       });
     await onlineCache.del(user.id)
@@ -128,7 +130,7 @@ io.on("connection", async (socket) => {
         socket.emit('authentication error');
         return;
       }
-      const result = await friendUseCases.createFriend(user.id, friendId);
+      const result = await friendUseCases.acceptFriendRequest(user.id, friendId);
       if (!result) {
         socket.emit('friend request failed');
         return;
@@ -172,15 +174,43 @@ io.on("connection", async (socket) => {
       if (user === null) {
         socket.emit('authencication error');
       }
+      console.log(participants)
       const convo = await conversationUseCases.createConversation([...participants, user]);
       socket.emit('convo', convo);
-      console.log(participants)
       participants.forEach(async (participant: User) => {
         const participantSocketId = await onlineCache.get(participant.id);
         if (participantSocketId) {
             socket.to(participantSocketId).emit('convo', convo);
           }
         });
+    })
+    socket.on("remove convo", async (convoId) => {
+      if (user === null) {
+        socket.emit('authentication error');
+      }
+      const participants = await conversationUseCases.getParticipants(convoId);
+      const result = await conversationUseCases.deleteConversation(convoId);
+      participants.forEach(async (participant: User) => {
+        const participantSocketId = await onlineCache.get(participant.id);
+        if (participantSocketId) {
+            socket.to(participantSocketId).emit('convo removed', convoId);
+          }
+        });
+    })
+    socket.on("unfriend", async (friendId) => {
+      if (user === null) {
+        socket.emit('authentication error');
+      }
+      const result = await friendUseCases.deleteFriend(user.id, friendId);
+      if (!result) {
+        socket.emit('unfriend failed');
+        return;
+      }
+      const friendSocketId = await onlineCache.get(friendId);
+      console.log('unfriended', friendId)
+      if (friendSocketId) {
+        socket.to(friendSocketId).emit('unfriended', user);
+      }
     })
 });
 export default httpServer;

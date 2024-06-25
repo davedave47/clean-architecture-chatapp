@@ -3,12 +3,14 @@ import userReducer from "./userSlice";
 import convoReducer from "./convoSlice";
 import friendReducer from "./friendSlice";
 import requestReducer from "./requestSlice";
+import onlineReducer from "./onlineSlice";
 const store = configureStore({
     reducer: {
         user: userReducer,
         convo: convoReducer,
         friend: friendReducer,
-        request: requestReducer
+        request: requestReducer,
+        online: onlineReducer,
     },
 });
 

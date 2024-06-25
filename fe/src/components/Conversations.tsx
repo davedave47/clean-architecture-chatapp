@@ -9,6 +9,7 @@ export default function Conversations({onCreateConversation, onClick, selected}:
     console.log("conversations mounted")
     const dispatch = useDispatch<AppDispatch>();
     const user = useSelector((state: RootState) => state.user);
+    const onlineUsers = useSelector((state: RootState) => state.online);
     const socket = useSocket();
     const {convo: conversations, error} = useSelector((state: RootState) => state.convo);
     useEffect(() => {
@@ -26,6 +27,7 @@ export default function Conversations({onCreateConversation, onClick, selected}:
         }
         return () => {
             if (socket) {
+                console.log("convo listeners removed")
                 socket.off("convo");
                 socket.off("convo removed");
             }
@@ -43,6 +45,9 @@ export default function Conversations({onCreateConversation, onClick, selected}:
     function handleClick(conversation: IConversation) {
         onClick(conversation);
     }
+    if (onlineUsers===null) {
+        return <p>Loading...</p>
+    }
     return (
         <div className={styles.container}>
             <div className={styles.buttons}>
@@ -51,10 +56,15 @@ export default function Conversations({onCreateConversation, onClick, selected}:
             <div className={styles.conversations}>
             {error ? <p>{error}</p> : conversations ? selected && conversations.map((conversation: IConversation) => {    
                 const title = conversation.name || conversation.participants.filter(participant => participant.id !== user.id).map(participant => participant.username).join(', ');
+                console.log("online Users", onlineUsers)
+                const isOnline = onlineUsers ? conversation.participants.filter(participant => onlineUsers.map(user => user.id).includes(participant.id)).length+1 >= (conversation.participants.length+1) / 2:false;
                 return (
                 <div key={conversation.id} onClick={() => handleClick(conversation)} className={`${styles.conversation} ${selected!.id===conversation.id && styles.active}`}>
                     <div className={styles.info}>
+                        <div>
                         <h3 className={styles.name}>{title}</h3>
+                        {isOnline && <span className="online"></span>}
+                        </div>
                         {conversation.lastMessage ?
                         <div className={styles.message}>
                             <span>{conversation.lastMessage.sender.username===user.username ? "You":conversation.lastMessage.sender.username}: </span>

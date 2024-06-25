@@ -1,6 +1,5 @@
 import {useSelector, useDispatch} from 'react-redux';
-import { removeRequest, fetchAllRequests, acceptRequest, receiveRequest, rejectRequest } from '../redux/requestSlice';
-import { addFriend } from '../redux/friendSlice';
+import { removeRequest, fetchAllRequests, acceptRequest, rejectRequest } from '../redux/requestSlice';
 import useSocket from '../hooks/useSocket';
 import { RootState, AppDispatch } from '../redux';
 import { useEffect, useState } from 'react';
@@ -15,27 +14,7 @@ export default function Requests({onCancel}: {onCancel: () => void}) {
     useEffect(() => {
         dispatch(fetchAllRequests());
     },[dispatch])
-    useEffect(() => {
-        if (socket) {
-            socket.on('friend request', (user: IUser) => {
-                dispatch(receiveRequest(user));
-            })
-            socket.on('friend accepted', (user: IUser) => {
-                dispatch(removeRequest(user));
-                dispatch(addFriend(user));
-            })
-            socket.on('friend rejected', (user: IUser) => {
-                dispatch(removeRequest(user));
-            })
-        }
-        return () => {
-            if (socket) {
-                socket.off('friend request');
-                socket.off('friend accepted');
-                socket.off('friend rejected');
-            }
-        }
-    },[socket, dispatch])
+
     function handleAccept(user: IUser) {
         if (!socket) return;
         socket.emit('accept', user.id);

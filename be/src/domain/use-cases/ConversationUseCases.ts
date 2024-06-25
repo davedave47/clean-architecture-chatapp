@@ -6,7 +6,6 @@ export default class ConversationUseCases {
     ) {}
     async getConversations(userId: string, skip: number): Promise<Conversation[]> {
         const conversations = await this.conversationRepository.getConversations(userId, skip);
-        console.log(conversations)
         const messages = await Promise.all(conversations.map(async (convo) => {
             return await this.conversationRepository.getMessages(convo.id, 1, 0);
         }));

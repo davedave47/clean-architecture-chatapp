@@ -46,6 +46,8 @@ const convoSlice = createSlice({
                 const convo = state.convo.find(convo => convo.id === action.payload.conversationId);
                 if (convo) {
                     convo.lastMessage = action.payload;
+                    state.convo = state.convo.filter(c => c.id !== action.payload.conversationId);
+                    state.convo.unshift(convo);
                 }
             }
         }
