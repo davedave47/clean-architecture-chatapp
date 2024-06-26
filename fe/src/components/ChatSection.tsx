@@ -63,11 +63,33 @@ export default function ChatSection({conversation}: {conversation: IConversation
             messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
         }
     }, [messages]);
-    function handleSend(message: string) {
+    function handleSend(message: string, files?: FileList) {
         if (!socket) {
             return;
         }
-        socket.emit('chat message', {content: {text: message, file: false}, conversationId: conversation.id, createdAt: new Date()});
+        const sendTextMessage = () => {
+            if (message === "") {
+                return;
+            }
+            socket.emit('chat message', {content: {text: message, file: false}, conversationId: conversation.id, createdAt: new Date()});
+        }
+        if (files) {
+            console.log('files: ', files)
+            const promises = [];
+            const fileArray: {filename: string, file: ArrayBuffer}[] = [];
+            for (let i = 0; i < files.length; i++) {
+                promises.push(files[i].arrayBuffer().then((buffer) => {
+                    fileArray.push({filename: files[i].name, file: buffer})
+                }));
+            }
+            Promise.all(promises).then(() => {
+                socket.emit('chat message', {content: {files: fileArray, file: true}, conversationId: conversation.id, createdAt: new Date()});
+                setTimeout(() => {sendTextMessage()},50)
+            });
+        }
+        else {
+            sendTextMessage()
+        }
         if (!messages) {
             return;
         }

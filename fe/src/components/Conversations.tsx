@@ -68,7 +68,7 @@ export default function Conversations({onCreateConversation, onClick, selected}:
                         {conversation.lastMessage ?
                         <div className={styles.message}>
                             <span>{conversation.lastMessage.sender.username===user.username ? "You":conversation.lastMessage.sender.username}: </span>
-                            <span>{conversation.lastMessage.content.text} - </span>
+                            <span>{conversation.lastMessage.content.file ? conversation.lastMessage.content.text.split('/').pop()?.replace(/-\d+$/, ''):conversation.lastMessage.content.text} - </span>
                             <span>{new Date(conversation.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
                         </div>:
                         <div className={styles.message}>

@@ -31,7 +31,6 @@ export default function ChatPage() {
     useEffect(()=>{
         if (socket) {
             console.log("emitting login", socket)
-            socket.emit("login")
             socket.on('authentication error', () => {
                 console.log("authentication error")
                 dispatch(logOut());
@@ -54,6 +53,7 @@ export default function ChatPage() {
             socket.on('online', (online) => {
                 console.log("received online", online)
                 dispatch(setOnline(online));
+                socket.off('online');
             })
             socket.on('user logged on', (user) => {
                 console.log("user logged on", user)
@@ -70,7 +70,6 @@ export default function ChatPage() {
                 socket.off('friend accepted');
                 socket.off('friend rejected');
                 socket.off('unfriended');
-                socket.off('online');
                 socket.off('user logged on');
                 socket.off('user logged out');
             }
@@ -109,14 +108,16 @@ export default function ChatPage() {
                         display: 'flex',
                         flexDirection: 'row',
                         justifyContent: 'space-between',
-                        width: '20%',
+                        width: '100vw',
                         padding: '10px',
                     }
                 
                 }>
                     <span>Welcome {currentUser.username}</span>
-                    <button onClick={()=>{setShowRequests(!showRequests)}}>Requests</button>
-                    {showRequests && <Requests onCancel={()=>{setShowRequests(false)}}/>}
+                    <span>
+                        <button onClick={()=>{setShowRequests(!showRequests)}}>Requests</button>
+                        {showRequests && <Requests onCancel={()=>{setShowRequests(false)}}/>}
+                    </span>
                     <button onClick={()=>{setShowFriends(true)}}>Friends</button>
                     <button onClick={handleSubmit}>Log out</button>
                 </div>
