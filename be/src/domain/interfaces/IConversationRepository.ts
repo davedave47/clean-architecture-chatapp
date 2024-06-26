@@ -8,4 +8,5 @@ export default interface IConversationRepository {
     deleteConversation(conversationId: string): Promise<void>;
     deleteMessage(messageId: string): Promise<void>;
     getParticipants(conversationId: string): Promise<User[]>
+    uploadFile(filename: string, file: ArrayBuffer): Promise<string>;
 }

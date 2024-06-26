@@ -2,6 +2,8 @@ import IConversationRepository from "@src/domain/interfaces/IConversationReposit
 import { Conversation, User, Message } from "@src/domain/entities";
 import chatappDB from "../config/chatappDB";
 import MessageModel from "../models/MessageModel";
+import fs from 'fs';
+
 
 export default class ConversationRepository implements IConversationRepository {
     async getConversations(userId: string,skip:number): Promise<{id: string, createdAt: Date, name?: string}[]> {
@@ -125,5 +127,11 @@ export default class ConversationRepository implements IConversationRepository {
             const {id, name, email} = record.get('user').properties;
             return new User(id, name, email);
         });
+    }
+    async uploadFile(filename: string, file: ArrayBuffer): Promise<string> {
+        const buffer = Buffer.from(file);
+        filename = filename+'-'+Date.now().toString();
+        fs.writeFileSync(`./uploads/${filename}`, buffer);
+        return filename;
     }
 }

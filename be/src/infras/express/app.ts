@@ -1,5 +1,6 @@
 import express, { Request, Response } from 'express';
 import router from './router'
+import path from 'path';
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
@@ -13,6 +14,14 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use('/api', router);
+app.use('/uploads', express.static('./../../../uploads'));
+
+app.get("/uploads/:id", (req: Request, res: Response) => { 
+    const filePath = path.resolve(__dirname, './../../../uploads', req.params.id);
+    const filename = req.params.id.replace(/-\d+$/, '');
+    res.setHeader('Content-Disposition', 'attachment; filename=' + filename);
+    res.sendFile(filePath);
+})
 
 app.get("*", (req: Request, res: Response) => {
     console.log("Hello World");
