@@ -1,3 +1,4 @@
+$primary-color: lightseagreen;
 .loginContainer {
     display: flex;
     flex-direction: column;
@@ -27,7 +28,6 @@
         font-size: 1em;
         align-self: flex-start;
     }
-    $primary-color: lightseagreen;
     button {
         margin-top: 10px;
         padding: 5px;
@@ -49,7 +49,17 @@
         margin-bottom: 0;
     }
 }
-
+@media (prefers-color-scheme: dark) {
+    .loginContainer {
+        background-color: darken(rgb(196, 196, 196), 90%);
+    }
+    .loginForm {
+        background-color: darken(#f9f9f9,85%);
+        button {
+            background-color: coral;
+        }
+    }
+}
 
 @media screen and (max-width: 768px) {
     .loginForm {

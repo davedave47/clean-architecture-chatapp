@@ -42,6 +42,7 @@ export default function ChatPage() {
             socket.on('friend accepted', (user: IUser) => {
                 dispatch(removeRequest(user));
                 dispatch(addFriend(user));
+                dispatch(loggedOn(user));
             })
             socket.on('friend rejected', (user: IUser) => {
                 console.log("friend rejected", user)

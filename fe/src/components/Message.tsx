@@ -16,7 +16,8 @@ export default function Message({ message }: { message: IMessage}) {
                 padding: '5px',
                 backgroundColor: isOwnMessage ? 'lightblue' : 'lightgreen',
                 borderRadius: '5px',
-                maxWidth: "60%"
+                maxWidth: "60%",
+                color: "black"
         }}>
             <div style={
             {

@@ -148,6 +148,8 @@ io.on("connection", async (socket) => {
       if (friendSocketId.length > 0) {
         friendSocketId.forEach((socketId) => {
         socket.to(socketId).emit('friend accepted', user);})
+        const friend = await userUseCases.getUserById(friendId);
+        socket.emit('user logged on',friend)
       }
     })
     socket.on("reject", async (friendId)=>{

@@ -149,3 +149,42 @@ button.remove {
         background-color: darken($primary-color, 10%);
     }
 }
+@media (prefers-color-scheme: dark) {
+    .container {
+        background-color: rgba(255, 255, 255, 0.298);
+        .friendlist {
+            background-color: #333;
+        }
+        .list {
+            .items{
+                background-color: #61aefb;
+                color: black;
+            }
+        }
+        p {
+            color: white;
+            border-color: white;
+        }
+        .search {
+            .result {
+                background-color: black;
+                .items {
+                    background-color: #61aefb;
+                    color: black;
+                }
+            }
+        }
+    }
+}
+@media screen and (max-width: 768px) {
+    .container {
+        width: 90%;
+        max-height: 75%;
+        .list {
+            width: 100%;
+        }
+        .search {
+            max-height: 75%
+        }
+    }
+}

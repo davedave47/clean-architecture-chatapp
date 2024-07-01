@@ -12,6 +12,7 @@
         gap: 10px;
         margin-bottom: 10px;
         width: 100%;
+        overflow-x: auto;
         button {
             padding: 10px;
             border: none;
@@ -111,6 +112,39 @@
         }
     }
     
+}
+@media (prefers-color-scheme: dark) {
+    .container {
+        .conversations {
+            .conversation {
+                background-color: #333;
+                .info {
+                    .name {
+                        color: white;
+                    }
+                    .message {
+                        color: #888;
+                    }
+                }
+                &.active {
+                    background-color: lighten(#333, 20%)
+                }
+            }
+        }
+        .userContainer{
+            .users{
+                .item{
+                    background-color: #333;
+                    .name {
+                        color: white;
+                    }
+                    button {
+                        background-color: #333;
+                    }
+                }
+            }
+        }
+    }
 }
 
 @media screen and (max-width: 768px) {
