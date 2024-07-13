@@ -90,7 +90,7 @@ func (repo *FriendRepository) GetFriends(userId string) ([]entities.User, error)
 		if err != nil {
 			return nil, err
 		}
-		friends := make([]entities.User, 0)
+		friends := make([]entities.User, len(records))
 		for index, record := range records {
 			friends[index] = RecordToUser(record)
 		}
@@ -174,7 +174,7 @@ func (repo *FriendRepository) GetSentFriendRequests(userId string) ([]entities.U
 		if err != nil {
 			return nil, err
 		}
-		users := make([]entities.User, 0)
+		users := make([]entities.User, len(records))
 		for index, record := range records {
 			users[index] = RecordToUser(record)
 		}
@@ -205,7 +205,7 @@ func (repo *FriendRepository) GetReceivedFriendRequests(userId string) ([]entiti
 		if err != nil {
 			return nil, err
 		}
-		users := make([]entities.User, 0)
+		users := make([]entities.User, len(records))
 		for index, record := range records {
 			users[index] = RecordToUser(record)
 		}

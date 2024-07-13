@@ -11,7 +11,7 @@ export interface IMessage {
         text: string,
         file: boolean,
     };
-    sender: IUser;
+    senderId: string;
     conversationId: string;
     createdAt: string;
 }

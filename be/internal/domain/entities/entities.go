@@ -1,5 +1,7 @@
 package entities
 
+import "time"
+
 type UserChanges struct {
 	Email    string
 	Username string
@@ -11,66 +13,36 @@ type User struct {
 	Email    string `json:"email"`
 }
 
-func NewUser(ID, Username, Email string) User {
-	return User{
-		ID:       ID,
-		Username: Username,
-		Email:    Email,
-	}
-}
-
 type Conversation struct {
-	ID           string  `json:"id"`
-	Participants []User  `json:"participants"`
-	CreatedAt    string  `json:"createdAt"`
-	Name         string  `json:"name"`
-	LastMessage  Message `json:"lastMessage"`
-}
-
-func NewConversation(ID, Name string, Participants []User) Conversation {
-	return Conversation{
-		ID:           ID,
-		Name:         Name,
-		Participants: Participants,
-	}
+	ID           string    `json:"id"`
+	Participants []User    `json:"participants"`
+	CreatedAt    time.Time `json:"createdAt"`
+	Name         string    `json:"name"`
+	LastMessage  *Message  `json:"lastMessage,omitempty"`
 }
 
 type Content struct {
-	Text string `json:"text"`
-	File bool   `json:"file"`
+	Text  string  `json:"text"`
+	File  bool    `json:"file"`
+	Files []Files `json:"files" bson:"-"`
+}
+
+type Files struct {
+	FileName string `json:"filename"`
+	Buffer   []byte `json:"file"`
 }
 
 type Message struct {
-	ID             string  `json:"id"`
-	Content        Content `json:"content"`
-	Sender         User    `json:"sender"`
-	ConversationID string  `json:"conversationId"`
-}
-
-func NewMessage(Text string, File bool, ID string, Sender User, ConversationID string) Message {
-	return Message{
-		ID: "",
-		Content: Content{
-			Text: Text,
-			File: File,
-		},
-		Sender:         Sender,
-		ConversationID: ConversationID,
-	}
+	ID             string    `json:"id" bson:"-"`
+	Content        Content   `json:"content"`
+	SenderID       string    `json:"senderId" bson:"senderId"`
+	ConversationID string    `json:"conversationId" bson:"conversationId"`
+	CreatedAt      time.Time `json:"createdAt" bson:"createdAt"`
 }
 
 type Request struct {
-	ID        string `json:"id"`
-	Sender    User   `json:"sender"`
-	Receiver  User   `json:"receiver"`
-	CreatedAt string `json:"createdAt"`
-}
-
-func NewRequest(ID string, Sender, Receiver User, CreatedAt string) Request {
-	return Request{
-		ID:        ID,
-		Sender:    Sender,
-		Receiver:  Receiver,
-		CreatedAt: CreatedAt,
-	}
+	ID        string    `json:"id"`
+	Sender    User      `json:"sender"`
+	Receiver  User      `json:"receiver"`
+	CreatedAt time.Time `json:"createdAt"`
 }

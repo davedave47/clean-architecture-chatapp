@@ -73,6 +73,11 @@ func (controllers *AuthControllers) Register(c *fiber.Ctx) error {
 }
 
 func (controllers *AuthControllers) Logout(c *fiber.Ctx) error {
-	c.ClearCookie("token")
+	c.Cookie(&fiber.Cookie{
+		Name:     "token",
+		Value:    "",
+		Expires:  time.Now().Add(-time.Hour),
+		HTTPOnly: true,
+	})
 	return c.Status(200).SendString("Logout success")
 }

@@ -30,7 +30,7 @@ func initNeo4j() (*databases.Neo4jDatabase, func()) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("Connection established.")
+	fmt.Println("Connected to Neo4j")
 	return &databases.Neo4jDatabase{
 			Driver:   &driver,
 			Database: neo4jConfig.Database,

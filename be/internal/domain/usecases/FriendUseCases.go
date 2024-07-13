@@ -28,3 +28,32 @@ func (usecases *FriendUseCases) GetFriends(userId string) ([]entities.User, erro
 func (usecases *FriendUseCases) DeleteFriend(userId string, friendId string) error {
 	return usecases.FriendRepo.DeleteFriend(userId, friendId)
 }
+
+func (usecases *FriendUseCases) RequestFriend(userId string, friendId string) error {
+	return usecases.FriendRepo.RequestFriend(userId, friendId)
+}
+
+func (usecases *FriendUseCases) RejectFriendRequest(userId string, friendId string) error {
+	return usecases.FriendRepo.RejectFriendRequest(userId, friendId)
+}
+
+func (usecases *FriendUseCases) AcceptFriendRequest(userId string, friendId string) error {
+	err := usecases.FriendRepo.RejectFriendRequest(userId, friendId)
+	if err != nil {
+		return err
+
+	}
+	return usecases.FriendRepo.CreateFriend(userId, friendId)
+}
+
+func (usecases *FriendUseCases) RemoveFriendRequest(userId string, friendId string) error {
+	return usecases.FriendRepo.RejectFriendRequest(friendId, userId)
+}
+
+func (usecases *FriendUseCases) GetReceivedFriendRequests(userId string) ([]entities.User, error) {
+	return usecases.FriendRepo.GetReceivedFriendRequests(userId)
+}
+
+func (usecases *FriendUseCases) GetSentFriendRequests(userId string) ([]entities.User, error) {
+	return usecases.FriendRepo.GetSentFriendRequests(userId)
+}

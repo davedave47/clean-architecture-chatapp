@@ -1,12 +1,10 @@
-import express from 'express';
-const app = express();
+import WebSocket from 'ws';
+const ws = new WebSocket('ws://192.168.1.222:3000/ws');
 
-app.use(express.static('./dist'));
+ws.on('open', () => {
+  console.log('connected');
+})
 
-app.get('*', (req, res) => {
-  res.sendFile('index.html', { root: './dist' });
-});
-
-app.listen(5173,'0.0.0.0', () => {
-  console.log('Server is running on port 3000');
-});
+ws.on('message', (data) => {
+  console.log(data);
+})

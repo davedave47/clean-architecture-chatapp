@@ -10,6 +10,7 @@ export default function Conversations({onCreateConversation, onClick, selected}:
     const dispatch = useDispatch<AppDispatch>();
     const user = useSelector((state: RootState) => state.user);
     const onlineUsers = useSelector((state: RootState) => state.online);
+    console.log("online users", onlineUsers)
     const socket = useSocket();
     const {convo: conversations, error} = useSelector((state: RootState) => state.convo);
     useEffect(() => {
@@ -58,6 +59,7 @@ export default function Conversations({onCreateConversation, onClick, selected}:
                 const title = conversation.name || conversation.participants.filter(participant => participant.id !== user.id).map(participant => participant.username).join(', ');
                 console.log("online Users", onlineUsers)
                 const isOnline = onlineUsers ? conversation.participants.filter(participant => onlineUsers.map(user => user.id).includes(participant.id)).length+1 >= (conversation.participants.length+1) / 2:false;
+                const senderName = conversation.lastMessage?.senderId === user.id ? "You":conversation.participants.find(participant => participant.id === conversation.lastMessage?.senderId)?.username;
                 return (
                 <div key={conversation.id} onClick={() => handleClick(conversation)} className={`${styles.conversation} ${selected!.id===conversation.id && styles.active}`}>
                     <div className={styles.info}>
@@ -67,7 +69,7 @@ export default function Conversations({onCreateConversation, onClick, selected}:
                         </div>
                         {conversation.lastMessage ?
                         <div className={styles.message}>
-                            <span>{conversation.lastMessage.sender.username===user.username ? "You":conversation.lastMessage.sender.username}: </span>
+                            <span>{senderName}: </span>
                             <span>{conversation.lastMessage.content.file ? conversation.lastMessage.content.text.split('/').pop()?.replace(/-\d+$/, ''):conversation.lastMessage.content.text} - </span>
                             <span>{new Date(conversation.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
                         </div>:

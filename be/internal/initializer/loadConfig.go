@@ -25,6 +25,7 @@ func loadConfig() {
 		DB:       db,
 	})
 	loadMongoConfig(&MongoConfiguration{
-		URI: os.Getenv("MONGO_URL"),
+		URI:      os.Getenv("MONGO_URL"),
+		Database: os.Getenv("MONGO_DATABASE"),
 	})
 }

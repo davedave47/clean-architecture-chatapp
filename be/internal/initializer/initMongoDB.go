@@ -2,6 +2,7 @@ package initializer
 
 import (
 	"context"
+	"fmt"
 	"log"
 	databases "root/internal/infras/db"
 
@@ -22,10 +23,10 @@ func initMongo() (*databases.MongoDatabase, func()) {
 	if err != nil {
 		log.Fatalf("Failed to create mongo client: %v", err)
 	}
+	fmt.Println("Connected to MongoDB")
 	return &databases.MongoDatabase{
-			Client:   client,
 			Context:  ctx,
-			Database: mongoConfig.Database,
+			Database: client.Database(mongoConfig.Database),
 		}, func() {
 			client.Disconnect(ctx)
 		}

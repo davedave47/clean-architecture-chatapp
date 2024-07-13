@@ -17,6 +17,9 @@ class Socket {
         if (this.eventListeners[event]) {
           this.eventListeners[event](eventData);
         }
+        else {
+          console.log("No listener for event", event);
+        }
       }
       return;
     }
@@ -39,12 +42,14 @@ export const SocketContext = createContext<Socket | undefined>(undefined);
 export function SocketProvider({ children }: { children: ReactNode}) {
   const [socket, setSocket] = useState<Socket | undefined>();
   useEffect(() => {
-    const newSocket = new Socket('ws://localhost:3000');
+    const newSocket = new Socket(import.meta.env.VITE_BACKEND_URL.toString().replace('http', 'ws')+"/ws");
     newSocket.on('connect', () => {
       setSocket(newSocket);
+      console.log("socket connected")
     });
     return () => {
       newSocket.disconnect();
+      console.log("socket disconnected")
     };
   }, []);
 

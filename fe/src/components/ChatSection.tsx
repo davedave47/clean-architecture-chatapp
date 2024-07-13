@@ -8,6 +8,16 @@ import styles from '../styles/ChatSection.module.scss';
 import {useDispatch} from 'react-redux';
 import { setLatestMessage } from "../redux/convoSlice";
 
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+}
+
 export default function ChatSection({conversation}: {conversation: IConversation}) {
     const dispatch = useDispatch();
     const socket = useSocket();
@@ -41,7 +51,6 @@ export default function ChatSection({conversation}: {conversation: IConversation
         if (!socket) {
             return;
         }
-        console.log(socket.id)
         socket.on('chat message', (message: IMessage) => {
             console.log("received: ", message)
             if (message.conversationId === conversation.id) {
@@ -76,13 +85,14 @@ export default function ChatSection({conversation}: {conversation: IConversation
         if (files) {
             console.log('files: ', files)
             const promises = [];
-            const fileArray: {filename: string, file: ArrayBuffer}[] = [];
+            const fileArray: {filename: string, file: string}[] = [];
             for (let i = 0; i < files.length; i++) {
                 promises.push(files[i].arrayBuffer().then((buffer) => {
-                    fileArray.push({filename: files[i].name, file: buffer})
+                    fileArray.push({filename: files[i].name, file: arrayBufferToBase64(buffer)});
                 }));
             }
             Promise.all(promises).then(() => {
+                console.log("fileArray: ", fileArray)
                 socket.emit('chat message', {content: {files: fileArray, file: true}, conversationId: conversation.id, createdAt: new Date()});
                 setTimeout(() => {sendTextMessage()},50)
             });
@@ -123,7 +133,7 @@ export default function ChatSection({conversation}: {conversation: IConversation
                     <div className={styles.messagesContainer} onScroll={handleScroll}>
                         {isLoading && <p>Loading...</p>}
                         {messages.map((message: IMessage) => {
-                            return <Message key={message.id} message={message} />
+                            return <Message key={message.id} message={message} senderName={conversation.participants.find(u => u.id === message.senderId)!.username} />
                         })}
                         <div ref={messagesEndRef}> </div>
                     </div>

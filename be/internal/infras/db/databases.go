@@ -21,9 +21,8 @@ type RedisDatabase struct {
 }
 
 type MongoDatabase struct {
-	Client   *mongo.Client
 	Context  context.Context
-	Database string
+	Database *mongo.Database
 }
 
 var UserDB *Neo4jDatabase

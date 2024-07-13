@@ -1,19 +1,23 @@
 package initializer
 
 import (
+	"os"
 	"root/internal/infras/router"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func InitRouter() *fiber.App {
 	r := fiber.New()
-
+	r.Use(cors.New(cors.Config{
+		AllowOrigins:     os.Getenv("FRONTEND_URL"),
+		AllowCredentials: true,
+	}))
 	//Default middlewares
 	r.Use(logger.New(logger.Config{
 		Format: "${time} ${method} ${path} - ${ip} - ${status} - ${latency}\n",
 	}))
-	router.NewRouter(r)
-	return r
+	return router.NewRouter(r)
 }
