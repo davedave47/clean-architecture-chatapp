@@ -23,19 +23,19 @@ export default function ChatSubmit({ onSend }: { onSend: (message: string, files
         {files && [...files].map((file, index) => (
           <span key={index}>{file.name}</span>
         ))}
-</div>
-<form onSubmit={handleSubmit}>
-  <label htmlFor="file-upload" className="custom-file-upload">
-    &#x1F4E5;
-  </label>
-  <input id="file-upload" type="file" style={{display: 'none'}} onChange={(e) => setFiles(e.target.files)} multiple />      
-  <input
-    type="text"
-    value={message}
-    onChange={(e) => setMessage(e.target.value)}
-  />
-  <button type="submit">Send</button>
-</form>
+      </div>
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="file-upload" className="custom-file-upload">
+          &#x1F4E5;
+        </label>
+        <input id="file-upload" type="file" style={{display: 'none'}} onChange={(e) => setFiles(e.target.files)} multiple />      
+        <input
+          type="text"
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+        />
+        <button type="submit">Send</button>
+      </form>
     </>
   );
 }
