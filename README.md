@@ -22,7 +22,8 @@ Make sure you have MongoDB and Neo4j running on your device (I recommend install
 Make a file named `.env` file in both be and fe and include these lines:
 1. For fe:  
 
-`VITE_BACKEND_URL=YOUR_BACKEND_URL` (default value is `http://YOUR_LOCAL_IP:3000` i.e `http://192.128.1.2:3000`)
+`VITE_BACKEND_URL=YOUR_BACKEND_URL`  
+(default value is `http://YOUR_LOCAL_IP:3000` i.e `http://192.128.1.2:3000`)
 
 2. For be:  
 
@@ -42,8 +43,9 @@ MongoDB configurations:
 `MONGO_URL=YOUR_MONGODB_URL` (default is `mongodb://127.0.0.1:27017` if you run in localhost)
 `MONGO_DATABASE=YOUR_MONGODB_DATABASE` (can be anyname to store messages)
 
-Front-end url for CORS:
-`FRONTEND_URL=YOUR_FRONTEND_URL` (`http://YOUR_LOCAL_IP:5173` i.e `http://192.128.1.2:5173`)
+Front-end url for CORS:  
+`FRONTEND_URL=YOUR_FRONTEND_URL`  
+(`http://YOUR_LOCAL_IP:5173` i.e `http://192.128.1.2:5173`)
 
 ## Running the Project
 
