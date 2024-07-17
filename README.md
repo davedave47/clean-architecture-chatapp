@@ -45,7 +45,7 @@ MongoDB configurations:
 
 Front-end url for CORS:  
 `FRONTEND_URL=YOUR_FRONTEND_URL`  
-(`http://YOUR_LOCAL_IP:5173` i.e `http://192.128.1.2:5173`)
+(default value is `http://YOUR_LOCAL_IP:5173` i.e `http://192.128.1.2:5173`)
 
 ## Running the Project
 
