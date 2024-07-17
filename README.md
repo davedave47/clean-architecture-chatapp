@@ -21,9 +21,11 @@ Make sure you have MongoDB and Neo4j running on your device (I recommend install
 
 Make a file named `.env` file in both be and fe and include these lines:
 1. For fe:  
+
 `VITE_BACKEND_URL=YOUR_FE_URL`
 
 2. For be:  
+
 Secret key for JWT authorization:  
 `SECRET_KEY=YOUR_JWT_SECRET_KEY`  
 
