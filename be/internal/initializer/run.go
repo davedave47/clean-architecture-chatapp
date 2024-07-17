@@ -16,10 +16,6 @@ func Run() {
 	databases.UserDB = neo4jDatabase
 	defer cleanupNeo4j()
 
-	redisDatabase, cleanupRedis := initRedis()
-	databases.OnlineCache = redisDatabase
-	defer cleanupRedis()
-
 	mongoDatabase, cleanupMongo := initMongo()
 	databases.MessageDB = mongoDatabase
 	defer cleanupMongo()

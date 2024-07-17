@@ -1,5 +1,8 @@
 =======
 # Clean-architecture-template
+Introduction:
+
+Typical chatapp that uses [Uncle Bob's clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). Backend is written in Go and uses [fiber](https://docs.gofiber.io/) API framework for HTTP and Websocket. Frontend is written in Typescript and uses [Vitejs](https://v4.vitejs.dev/guide/) and [Reactjs](https://react.dev/learn).
 
 How to run:
 
@@ -9,6 +12,33 @@ Before you can run this project, you need to have Go and Node.js installed on yo
 
 - For Go, download and install it from [here](https://golang.org/dl/).
 - For Node.js, download and install it from [here](https://nodejs.org/en/download/).
+
+Make sure you have MongoDB and Neo4j running on your device (I recommend install via [Docker](https://docs.docker.com/engine/install)).
+- [MongoDB](https://www.mongodb.com/try/download/community)
+- [Neo4j](https://neo4j.com/docs/operations-manual/current/installation/)
+
+## Environment variables
+
+Make a file named `.env` file in both be and fe and include these lines:
+1. For fe:
+`VITE_BACKEND_URL=YOUR_FE_URL`
+2. For be:
+Secret key for JWT authorization:
+`SECRET_KEY=YOUR_JWT_SECRET_KEY`
+Create an admin user and enter it here:
+`ADMIN_ID=YOUR_ADMIN_ID`
+Neo4j configurations:
+`NEO4J_PASSWORD=YOUR_NEO4J_PASSWORD`
+`NEO4J_URL=YOUR_NEO4J_URL`
+`NEO4J_USERNAME=YOUR_NEO4J_USERNAME` (default value is `neo4j`)
+`NEO4J_DATABASE=YOUR_NEO4J_DATABASE` (default value is `neo4j`)
+
+MongoDB configurations:
+`MONGO_URL=YOUR_MONGODB_URL` (default is `mongodb://127.0.0.1:27017` if you run in localhost)
+`MONGO_DATABASE=YOUR_MONGODB_DATABASE` (can be anyname to store messages)
+
+Front-end url for CORS:
+`FRONTEND_URL=YOUR_FRONTEND_URL`
 
 ## Running the Project
 
