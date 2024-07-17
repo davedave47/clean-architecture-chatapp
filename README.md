@@ -2,7 +2,7 @@
 # Clean-architecture-template
 Introduction:
 
-Typical chatapp that uses [Uncle Bob's clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). Backend is written in Go and uses [fiber](https://docs.gofiber.io/) API framework for HTTP and Websocket. Frontend is written in Typescript and uses [Vitejs](https://v4.vitejs.dev/guide/) and [Reactjs](https://react.dev/learn).
+Typical chatapp that uses [Uncle Bob's clean architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). Backend is written in Go and uses [fiber](https://docs.gofiber.io/) API framework for HTTP and Websocket. Frontend is written in Typescript and uses [Vitejs](https://v4.vitejs.dev/guide/) and [Reactjs](https://react.dev/learn). The server stores user information and conversation information and friend relationships on a graph database called Neo4j and stores messages on a NoSQL scalable database called MongoDB. Files are stored directly on server /uploads folder
 
 How to run:
 

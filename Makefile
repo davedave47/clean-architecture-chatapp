@@ -6,7 +6,7 @@ FE_DIR = fe
 
 # Define your commands for the be and fe directories
 be:
-	gnome-terminal -- bash -c "cd $(BE_DIR) && air"
+	gnome-terminal -- bash -c "cd $(BE_DIR) && mkdir -p uploads && air"
 fe:
 	gnome-terminal -- bash -c "cd $(FE_DIR) && npm run dev"
 
