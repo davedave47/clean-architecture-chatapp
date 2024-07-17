@@ -14,7 +14,10 @@ be-install:
 	cd $(BE_DIR) && go mod tidy
 fe-install:
 	cd $(FE_DIR) && npm install
-install: be-install fe-install
+ensure-env:
+    cd $(BE_DIR) && touch .env
+    cd $(FE_DIR) && touch .env
+install: ensure-env be-install fe-install
 	echo "Installing the project..."
 # Add any other targets you need, e.g., build, start, test, etc.
 build: be fe
