@@ -33,7 +33,7 @@ func (controllers *ChatSocketControllers) UnregisterUser(c *websocket.Conn) {
 	controllers.socket.Mutex.Unlock()
 
 	for _, friend := range friends {
-		err := controllers.socket.EmitMessage("user logged off", user, friend.ID)
+		err := controllers.socket.EmitMessage("user logged out", user, friend.ID)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -60,7 +60,7 @@ func (controllers *ChatSocketControllers) RegisterUser(c *websocket.Conn) {
 	for _, friend := range friends {
 		err := controllers.socket.EmitMessage("user logged on", user, friend.ID)
 		if err != nil {
-			fmt.Println(err)
+			continue
 		}
 		onlineFriends = append(onlineFriends, friend)
 	}
@@ -149,7 +149,14 @@ func (controllers *ChatSocketControllers) AcceptFriendRequest(c *websocket.Conn)
 		if err != nil {
 			return err
 		}
-		controllers.socket.EmitMessage("friend request accepted", user, friendId)
+		err = controllers.socket.EmitMessage("friend accepted", user, friendId)
+		if err == nil {
+			friend, err := controllers.userUseCase.GetUserById(friendId)
+			if err != nil {
+				return err
+			}
+			controllers.socket.EmitMessage("user logged on", friend, user.ID)
+		}
 		return nil
 	}
 }

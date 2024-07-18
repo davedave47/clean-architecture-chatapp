@@ -1,4 +1,4 @@
-import { useState, useRef, memo} from "react";
+import { useState, useRef} from "react";
 import { IUser } from "../interfaces";
 import {useDebounce} from "../hooks/useDebounce";
 import { useSelector, useDispatch } from "react-redux";
@@ -48,10 +48,12 @@ export default function FriendSearch(){
     )
 }
 
-const UserList = memo(({users}: {users: IUser[]}) => {
+const UserList = ({users}: {users: IUser[]}) => {
     const currentUser = useSelector((state: RootState) => state.user);
     const {friends} = useSelector((state: RootState) => state.friend);
     const {requests} = useSelector((state: RootState) => state.request);
+    const online = useSelector((state: RootState) => state.online);
+    console.log("request", requests)
     const socket = useSocket();
     const dispatch = useDispatch();
     function handleAdd(user: IUser){
@@ -85,14 +87,21 @@ const UserList = memo(({users}: {users: IUser[]}) => {
             if (user.id === currentUser.id) return (
                 <div key={user.id} className={styles.items}>
                     <p>{user.username}</p>
-                    <p>You</p>
+                    <p style={
+                        {
+                            marginLeft: 'auto',
+                        }
+                    }>You</p>
                 </div>
             )
             return (
                 <div key={user.id} className={styles.items}>
                     <p>{user.username}</p>
                     {friends!.some(friend => friend.id === user.id) ? 
-                    <button className={styles.remove} onClick={() => {handleUnfriend(user)}}>Unfriend</button> :
+                    <>
+                        {online?.some(onlineUser => onlineUser.id === user.id) && <span className='online'></span>}
+                        <button className={styles.remove} onClick={() => {handleUnfriend(user)}}>Unfriend</button>
+                    </>:
                     requests?.sent.some(request => request.id === user.id) ? <button onClick={()=>{handleCancel(user)}}>Cancel Request</button> : 
                     requests?.received.some(request => request.id === user.id) ? <><button onClick={()=>{handAccept(user)}}>Accept</button><button onClick={()=>{handleReject(user)}}>Reject</button></> :
                     <button onClick={() => {handleAdd(user)}}>Request</button>
@@ -101,4 +110,4 @@ const UserList = memo(({users}: {users: IUser[]}) => {
             )
         }) : <p className={styles.error}>No users found</p>}
     </>
-)});
+)};

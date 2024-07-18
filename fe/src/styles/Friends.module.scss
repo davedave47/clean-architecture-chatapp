@@ -99,7 +99,6 @@
             background-color: white;
             .items {
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
                 padding: 10px;
                 margin: 5px 0;
@@ -120,7 +119,8 @@
                     border: 1px solid black;
                     cursor: pointer;
                     font-size: 0.7em;
-                    color: white;
+                    color: black;
+                    margin-left: auto;
                 }
             }
             .error {

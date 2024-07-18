@@ -1,5 +1,6 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import { logOut } from './userSlice';
+import { removeFriend } from './friendSlice';
 import { IUser } from '../interfaces';
 type OnlineState = IUser[]|null;
 
@@ -9,6 +10,7 @@ const onlineSlice = createSlice({
     name: 'online',
     initialState: initialState as OnlineState,
     reducers: {
+        // @ts-expect-error ts(6133)
         setOnline(state, action: PayloadAction<IUser[]>) {
             console.log("action",action.payload)
             return action.payload;
@@ -25,8 +27,13 @@ const onlineSlice = createSlice({
         }
     },
     extraReducers: (builder) => {
-        builder.addCase(logOut, (state) => {
+        builder.addCase(logOut, () => {
             return initialState;
+        })
+        builder.addCase(removeFriend, (state, action) => {
+            if (state!==null) {
+                return state.filter(user => user.id !== action.payload);
+            }
         })
     }
 })

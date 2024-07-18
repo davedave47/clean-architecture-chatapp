@@ -4,25 +4,28 @@ import { MouseEvent, useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { logOut } from "../redux/userSlice";
 import ConversationSection from "../components/ConversationSection";
-import { RootState } from "../redux";
+import { RootState, AppDispatch } from "../redux";
 import { useAuth } from "../hooks/useAuth";
 import Friends from "../components/Friends";
 import useSocket from "../hooks/useSocket";
 import Requests from "../components/Requests";
 import { IUser } from "../interfaces";
 import { removeFriend, addFriend } from '../redux/friendSlice';
-import { removeRequest, receiveRequest } from '../redux/requestSlice';
+import { removeRequest, receiveRequest, fetchAllRequests } from '../redux/requestSlice';
 import { setOnline, loggedOn, loggedOff } from '../redux/onlineSlice';
 
 
 export default function ChatPage() {
     const nagivate = useNavigate();
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const currentUser = useSelector((state: RootState) => state.user);
     const [showFriends, setShowFriends] = useState(false);
     const [showRequests, setShowRequests] = useState(false);
     const {result, loading} = useAuth()
     const socket = useSocket()
+    useEffect(() => {
+        dispatch(fetchAllRequests());
+    },[dispatch])
     useEffect(() => {
         if (!result&&!loading) {
             nagivate('/login');

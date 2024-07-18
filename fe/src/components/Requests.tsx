@@ -1,8 +1,8 @@
 import {useSelector, useDispatch} from 'react-redux';
-import { removeRequest, fetchAllRequests, acceptRequest, rejectRequest } from '../redux/requestSlice';
+import { removeRequest, acceptRequest, rejectRequest } from '../redux/requestSlice';
 import useSocket from '../hooks/useSocket';
 import { RootState, AppDispatch } from '../redux';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {IUser} from '../interfaces';
 import styles from '../styles/Requests.module.scss';
 
@@ -11,9 +11,6 @@ export default function Requests({onCancel}: {onCancel: () => void}) {
     const [showSent, setShowSent] = useState(false);
     const dispatch = useDispatch<AppDispatch>();
     const socket = useSocket();
-    useEffect(() => {
-        dispatch(fetchAllRequests());
-    },[dispatch])
 
     function handleAccept(user: IUser) {
         if (!socket) return;
