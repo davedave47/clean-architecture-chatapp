@@ -10,6 +10,7 @@ export function useDebounce<T>(initialValue: T | undefined = undefined, fn: ()=>
         }
         const timeout = setTimeout(fn, delay);
         return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value,delay]);
 
     return [value, setValue];

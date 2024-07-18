@@ -3,7 +3,6 @@ package initializer
 import (
 	"os"
 	databases "root/internal/infras/db"
-	"root/internal/infras/socket"
 
 	"github.com/joho/godotenv"
 )
@@ -21,7 +20,7 @@ func Run() {
 	defer cleanupMongo()
 
 	r := InitRouter()
-	socket.InitSocket(r)
+	InitSocket(r)
 
 	port := os.Getenv("PORT")
 	if port == "" {

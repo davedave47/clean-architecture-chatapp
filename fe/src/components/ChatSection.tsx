@@ -26,6 +26,7 @@ export default function ChatSection({conversation}: {conversation: IConversation
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const canScroll = useRef(true);
     const skip = useRef(0);
+    const fetchedAll = useRef(false);
     const url = `/api/conversation/messages`;
     const option: RequestInit = useMemo(() => ({
         method: 'POST',
@@ -106,7 +107,7 @@ export default function ChatSection({conversation}: {conversation: IConversation
     }
     const handleScroll = async (e: React.UIEvent<HTMLDivElement>) => {
         const { scrollTop } = e.currentTarget;
-        if (scrollTop === 0 && !isLoading) {
+        if (scrollTop === 0 && !isLoading && !fetchedAll.current) {
             const topMessage = e.currentTarget.firstChild;
             setIsLoading(true);
             console.log("fetching messages")
@@ -116,6 +117,11 @@ export default function ChatSection({conversation}: {conversation: IConversation
             })
             const data = await result.json();
             skip.current += 10;
+            if (data.length === 0) {
+                fetchedAll.current = true;
+                setIsLoading(false);
+                return;
+            }
             setMessages(prevMessages => [...data, ...prevMessages]);
             setIsLoading(false);     
             canScroll.current = false;   
