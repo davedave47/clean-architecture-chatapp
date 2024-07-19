@@ -3,6 +3,7 @@ package usecases
 import (
 	"root/internal/domain/entities"
 	"root/internal/domain/interfaces"
+	"sort"
 	"time"
 )
 
@@ -39,6 +40,9 @@ func (usecases *ConvoUseCases) GetConversations(userId string, skip int) ([]enti
 			conversations[i].LastMessage = &lastMessage[0]
 		}
 	}
+	sort.Slice(conversations, func(i, j int) bool {
+		return conversations[i].LastMessage.CreatedAt.After(conversations[j].LastMessage.CreatedAt)
+	})
 	return conversations, nil
 }
 

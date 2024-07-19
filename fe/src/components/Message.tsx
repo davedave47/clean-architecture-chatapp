@@ -1,12 +1,16 @@
 import { IMessage} from '../interfaces';
 import { useSelector} from 'react-redux';
 import { RootState } from '../redux';
+import VideoPlayer from './VideoPlayer';
 
 export default function Message({ message, senderName }: { message: IMessage, senderName: string }) {
     const user = useSelector((state: RootState) => state.user);
     const isOwnMessage = message.senderId === user.id;
     const filename = message.content.text.split('/').pop()?.replace(/-\d+$/, '')
-    const isImage = filename?.endsWith('.jpg') || filename?.endsWith('.png') || filename?.endsWith('.gif') || filename?.endsWith('.jpeg');
+    const fileExtension = filename?.substring(filename.lastIndexOf('.') + 1);
+    const isImage = fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif';
+    const isVideo = fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' || fileExtension === 'mov';
+    // const mimeType = fileExtension === 'mov' ? 'video/mp4' : `video/${fileExtension}`;
 
     return (
         <div className={`message ${isOwnMessage ? 'own' : 'other'}`} style = {
@@ -48,6 +52,9 @@ export default function Message({ message, senderName }: { message: IMessage, se
                         </a>
                     </div>
                     :
+                    isVideo? 
+                    <VideoPlayer src={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text}/>
+                   :
                     <a href={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} download>
                         {message.content.text.split('/').pop()?.replace(/-\d+$/, '')}
                     </a>

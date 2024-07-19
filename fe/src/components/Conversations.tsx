@@ -69,8 +69,8 @@ export default function Conversations({onCreateConversation, onClick, selected}:
                         </div>
                         {conversation.lastMessage ?
                         <div className={styles.message}>
-                            <span>{senderName}: </span>
-                            <span>{conversation.lastMessage.content.file ? conversation.lastMessage.content.text.split('/').pop()?.replace(/-\d+$/, ''):conversation.lastMessage.content.text} - </span>
+                            <span>{senderName}</span>
+                            <span>{conversation.lastMessage.content.file ? " sent a file": ": "+conversation.lastMessage.content.text} - </span>
                             <span>{new Date(conversation.lastMessage.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false })}</span>
                         </div>:
                         <div className={styles.message}>
