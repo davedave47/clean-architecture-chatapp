@@ -40,9 +40,14 @@ func (usecases *ConvoUseCases) GetConversations(userId string, skip int) ([]enti
 			conversations[i].LastMessage = &lastMessage[0]
 		}
 	}
-	sort.Slice(conversations, func(i, j int) bool {
-		return conversations[i].LastMessage.CreatedAt.After(conversations[j].LastMessage.CreatedAt)
-	})
+	if len(conversations) > 1 {
+		sort.Slice(conversations, func(i, j int) bool {
+			if conversations[i].LastMessage == nil {
+				return false
+			}
+			return conversations[i].LastMessage.CreatedAt.After(conversations[j].LastMessage.CreatedAt)
+		})
+	}
 	return conversations, nil
 }
 

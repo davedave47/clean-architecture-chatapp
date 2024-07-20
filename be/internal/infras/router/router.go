@@ -85,6 +85,7 @@ func initConvoRoutes(api *fiber.Router) {
 	JWTAuth := middleware.JWTAuth(userUseCase)
 	convo.Get("/", JWTAuth, convoController.GetConversations)
 	convo.Post("/messages", JWTAuth, convoController.GetMessages)
+	convo.Post("/upload", JWTAuth, convoController.UploadFile)
 }
 
 func initFriendRoutes(api *fiber.Router) {

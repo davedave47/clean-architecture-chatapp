@@ -56,9 +56,11 @@ const VideoPlayer = ({ src }: {src: string}) => {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
   };
 
+
   useEffect(() => {
     if (!videoRef.current) return;
     const video = videoRef.current;
+    video.pause();
     video.addEventListener('ended', handleVideoEnd);
     video.addEventListener('timeupdate', handleTimeUpdate);
     video.addEventListener('loadedmetadata', handleLoadedMetadata);
@@ -69,14 +71,21 @@ const VideoPlayer = ({ src }: {src: string}) => {
       video.removeEventListener('loadedmetadata', handleLoadedMetadata);
     };
   }, []);
+  useEffect(() => {
+    if(isPlaying){
+      videoRef.current?.play()
+    }else{
+      videoRef.current?.pause()
+    }
+  },[isPlaying])
 
   return (
     <div className={styles.container}>
-      <video ref={videoRef} playsInline autoPlay onClick={togglePlay}>
-        <source src={src} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <button onClick={togglePlay} className={styles.play}>{isPlaying ? '‖' : '▶'}</button>
+        <video ref={videoRef} className={isPlaying?"":styles.paused} preload="metadata" playsInline autoPlay onClick={togglePlay}>
+          <source src={src} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      <button onClick={togglePlay} className={`${styles.play} ${isPlaying?"":styles.paused}`}>{isPlaying ? '‖' : '▶'}</button>
       <div className={styles.meta}>
         <span>{formatTime(currentTime)} / {formatTime(duration)}</span>
         <input className={styles.progress} type="range" min="0" max="100" value={duration > 0 ?(currentTime / duration) * 100 : 0} onChange={handleProgressChange} />

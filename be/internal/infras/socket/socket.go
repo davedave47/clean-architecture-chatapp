@@ -68,8 +68,10 @@ func (s *Socket) Connect(connect func(*websocket.Conn) func(*websocket.Conn), co
 
 func (s *Socket) EmitMessage(event string, data any, userId string) error {
 	s.Mutex.RLock()
+	fmt.Println(userId, "has", len(s.Connections[userId]), "connections")
 	if conns, ok := s.Connections[userId]; ok {
 		for _, conn := range conns {
+			fmt.Println("Emitting to", conn.RemoteAddr())
 			conn.WriteJSON(Message{
 				Event: event,
 				Data:  data,

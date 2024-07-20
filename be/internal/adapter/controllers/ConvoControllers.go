@@ -2,9 +2,9 @@ package controllers
 
 import (
 	"fmt"
-	"os"
 	"root/internal/domain/entities"
 	"root/internal/domain/usecases"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -49,19 +49,20 @@ func (controller *ConvoControllers) GetMessages(c *fiber.Ctx) error {
 	return c.JSON(messages)
 }
 
-func (controller *ConvoControllers) GetFile(c *fiber.Ctx) error {
-	// Extract the filename from the URL parameter
-	filename := c.Params("filename")
-
-	// Create the path to the file
-	filePath := fmt.Sprintf("./uploads/%s", filename)
-
-	// Check if the file exists
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		// File does not exist
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "File not found"})
+func (controllers *ConvoControllers) UploadFile(c *fiber.Ctx) error {
+	form, err := c.MultipartForm()
+	files := form.File["files"] // Assuming "files" is the name of the form field
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
 	}
-
-	// Serve the file
-	return c.SendFile(filePath)
+	var filePaths []string
+	for _, file := range files {
+		modifiedName := fmt.Sprintf("%s-%d", file.Filename, time.Now().UnixNano())
+		filePath := fmt.Sprintf("./uploads/%s", modifiedName)
+		if err := c.SaveFile(file, filePath); err != nil {
+			return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+		}
+		filePaths = append(filePaths, modifiedName)
+	}
+	return c.JSON(filePaths)
 }

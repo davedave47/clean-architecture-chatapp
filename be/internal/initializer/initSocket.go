@@ -32,12 +32,16 @@ func InitSocket(app *fiber.App) {
 		ReadBufferSize:  25 * 1e6,
 		WriteBufferSize: 25 * 1e6,
 	})
-	socket.On("chat message", socketHandler.ChatMessage)
-	socket.On("request", socketHandler.RequestFriend)
-	socket.On("accept", socketHandler.AcceptFriendRequest)
-	socket.On("reject", socketHandler.RejectFriendRequest)
-	socket.On("remove request", socketHandler.RemoveFriendRequest)
-	socket.On("create convo", socketHandler.CreateConvo)
-	socket.On("remove convo", socketHandler.RemoveConvo)
-	socket.On("unfriend", socketHandler.Unfriend)
+	InitListeners(socket, socketHandler)
+}
+
+func InitListeners(socket *socket.Socket, handler *controllers.ChatSocketControllers) {
+	socket.On("chat message", handler.ChatMessage)
+	socket.On("request", handler.RequestFriend)
+	socket.On("accept", handler.AcceptFriendRequest)
+	socket.On("reject", handler.RejectFriendRequest)
+	socket.On("remove request", handler.RemoveFriendRequest)
+	socket.On("create convo", handler.CreateConvo)
+	socket.On("remove convo", handler.RemoveConvo)
+	socket.On("unfriend", handler.Unfriend)
 }

@@ -10,7 +10,9 @@ import (
 )
 
 func InitRouter() *fiber.App {
-	r := fiber.New()
+	r := fiber.New(fiber.Config{
+		BodyLimit: 1024 * 1024 * 25,
+	})
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:     os.Getenv("FRONTEND_URL"),
 		AllowCredentials: true,

@@ -88,35 +88,35 @@ func (controllers *ChatSocketControllers) ChatMessage(c *websocket.Conn) func(da
 		if err != nil {
 			return err
 		}
-		if message.Content.File {
-			for _, file := range message.Content.Files {
-				path, err := controllers.convoUseCase.UploadFile(file.FileName, file.Buffer)
-				if err != nil {
-					return err
-				}
-				message, err := controllers.convoUseCase.SendMessage(user.ID, message.ConversationID, entities.Content{
-					Text: path,
-					File: true,
-				}, message.CreatedAt)
-				if err != nil {
-					return err
-				}
-				for _, participant := range participants {
-					controllers.socket.EmitMessage("chat message", message, participant.ID)
-				}
-			}
-		} else {
-			message, err := controllers.convoUseCase.SendMessage(user.ID, message.ConversationID, entities.Content{
-				Text: message.Content.Text,
-				File: false,
-			}, message.CreatedAt)
-			if err != nil {
-				return err
-			}
-			for _, participant := range participants {
-				controllers.socket.EmitMessage("chat message", message, participant.ID)
-			}
+		// if message.Content.File {
+		// 	for _, file := range message.Content.Files {
+		// 		path, err := controllers.convoUseCase.UploadFile(file.FileName, file.Buffer)
+		// 		if err != nil {
+		// 			return err
+		// 		}
+		// 		message, err := controllers.convoUseCase.SendMessage(user.ID, message.ConversationID, entities.Content{
+		// 			Text: path,
+		// 			File: true,
+		// 		}, message.CreatedAt)
+		// 		if err != nil {
+		// 			return err
+		// 		}
+		// 		for _, participant := range participants {
+		// 			controllers.socket.EmitMessage("chat message", message, participant.ID)
+		// 		}
+		// 	}
+		// } else {
+		received, err := controllers.convoUseCase.SendMessage(user.ID, message.ConversationID, entities.Content{
+			Text: message.Content.Text,
+			File: message.Content.File,
+		}, message.CreatedAt)
+		if err != nil {
+			return err
 		}
+		for _, participant := range participants {
+			controllers.socket.EmitMessage("chat message", received, participant.ID)
+		}
+		// }
 		return nil
 	}
 }

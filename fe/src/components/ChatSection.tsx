@@ -8,16 +8,6 @@ import styles from '../styles/ChatSection.module.scss';
 import {useDispatch} from 'react-redux';
 import { setLatestMessage } from "../redux/convoSlice";
 
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-        binary += String.fromCharCode(bytes[i]);
-    }
-    return window.btoa(binary);
-}
-
 export default function ChatSection({conversation}: {conversation: IConversation}) {
     const dispatch = useDispatch();
     const socket = useSocket();
@@ -46,6 +36,7 @@ export default function ChatSection({conversation}: {conversation: IConversation
         return () => {
             skip.current = 0;
             canScroll.current = true;
+            fetchedAll.current = false;
         }
     }, [data]);
     useEffect(() => {
@@ -70,8 +61,11 @@ export default function ChatSection({conversation}: {conversation: IConversation
 
     useEffect(() => {
         if (messagesEndRef.current&&canScroll.current) {
-            messagesEndRef.current.scrollIntoView({ behavior: 'instant' });
+            if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({ behavior: 'instant' })
+            }
         }
+        
     }, [messages]);
     function handleSend(message: string, files?: FileList) {
         if (!socket) {
@@ -85,18 +79,21 @@ export default function ChatSection({conversation}: {conversation: IConversation
         }
         if (files) {
             console.log('files: ', files)
-            const promises = [];
-            const fileArray: {filename: string, file: string}[] = [];
-            for (let i = 0; i < files.length; i++) {
-                promises.push(files[i].arrayBuffer().then((buffer) => {
-                    fileArray.push({filename: files[i].name, file: arrayBufferToBase64(buffer)});
-                }));
-            }
-            Promise.all(promises).then(() => {
-                console.log("fileArray: ", fileArray)
-                socket.emit('chat message', {content: {files: fileArray, file: true}, conversationId: conversation.id, createdAt: new Date()});
-                setTimeout(() => {sendTextMessage()},50)
-            });
+            const formData = new FormData();
+            Array.from(files).forEach((file) => {
+                formData.append('files', file);
+            })
+            fetch(import.meta.env.VITE_BACKEND_URL+'/api/conversation/upload', {
+                method: 'POST',
+                body: formData,
+                credentials: 'include'
+            }).then((response) => response.json()).then((data: string[]) => {
+                console.log("file data: ", data)
+                data.forEach((path) => {
+                    socket.emit('chat message', {content: {text: path, file: true}, conversationId: conversation.id, createdAt: new Date()});
+                })
+            })
+            setTimeout(() => {sendTextMessage()},50)
         }
         else {
             sendTextMessage()
