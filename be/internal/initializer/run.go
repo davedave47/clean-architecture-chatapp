@@ -20,11 +20,11 @@ func Run() {
 	defer cleanupMongo()
 
 	r := InitRouter()
-	InitSocket(r)
+	server := InitSocket(r)
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "3000"
 	}
-	r.Listen(":" + port)
+	server.Listen(":" + port)
 }

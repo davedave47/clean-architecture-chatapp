@@ -1,90 +1,43 @@
 package socket
 
 import (
-	"fmt"
-	"sync"
+	"root/internal/adapter/controllers"
+	"root/internal/domain/usecases"
+	databases "root/internal/infras/db"
+	"root/internal/infras/repository"
+	"root/package/mysocket"
 
-	"github.com/gofiber/contrib/websocket"
 	"github.com/gofiber/fiber/v2"
 )
 
-type Message struct {
-	Event string `json:"event"`
-	Data  any    `json:"data"`
-}
-type Socket struct {
-	Connections map[string][]*websocket.Conn
-	Mutex       *sync.RWMutex
-	events      map[string]func(*websocket.Conn) func(any) error
-	app         *fiber.App
+func NewServer(app *fiber.App) *mysocket.Server {
+	server := mysocket.NewServer(app, mysocket.Config{})
+	InitServer(server)
+	return server
 }
 
-func NewSocket(r *fiber.App) *Socket {
-	return &Socket{
-		Connections: make(map[string][]*websocket.Conn),
-		Mutex:       &sync.RWMutex{},
-		events:      map[string]func(*websocket.Conn) func(data any) error{},
-		app:         r,
-	}
-}
-
-func (s *Socket) Use(handler ...fiber.Handler) {
-	for _, handler := range handler {
-		s.app.Use(handler)
-	}
-	s.app.Use(func(c *fiber.Ctx) error {
-		if websocket.IsWebSocketUpgrade(c) {
-			c.Locals("allowed", true)
-			return c.Next()
-		}
-		return fiber.ErrUpgradeRequired
+func InitServer(server *mysocket.Server) {
+	userRepo := repository.NewUserRepo(databases.UserDB)
+	userUseCase := usecases.NewUserUseCases(userRepo)
+	friendRepo := repository.NewFriendRepo(databases.UserDB)
+	friendUseCase := usecases.NewFriendUseCases(friendRepo)
+	convoRepo := repository.NewConvoRepo(databases.MessageDB, databases.UserDB)
+	convoUseCase := usecases.NewConvoUseCases(convoRepo)
+	handler := controllers.NewChatSocketControllers(userUseCase, friendUseCase, convoUseCase)
+	server.On(func(socket *mysocket.Socket) {
+		handler.RegisterUser(socket, nil)
+		InitListeners(socket, handler)
 	})
 }
 
-func (s *Socket) Connect(connect func(*websocket.Conn) func(*websocket.Conn), config websocket.Config) {
-	s.app.Get("/ws", websocket.New(func(c *websocket.Conn) {
-
-		cleanup := connect(c)
-		defer cleanup(c)
-
-		var message Message
-		for {
-			err := c.ReadJSON(&message)
-			if err != nil {
-				break
-			}
-			if event, ok := s.events[message.Event]; ok {
-				err = event(c)(message.Data)
-				if err != nil {
-					fmt.Println("Error handling event", err)
-				}
-			} else {
-				fmt.Println("Event not found")
-				continue
-			}
-		}
-	}, config))
-}
-
-func (s *Socket) EmitMessage(event string, data any, userId string) error {
-	s.Mutex.RLock()
-	fmt.Println(userId, "has", len(s.Connections[userId]), "connections")
-	if conns, ok := s.Connections[userId]; ok {
-		for _, conn := range conns {
-			fmt.Println("Emitting to", conn.RemoteAddr())
-			conn.WriteJSON(Message{
-				Event: event,
-				Data:  data,
-			})
-		}
-	} else {
-		s.Mutex.RUnlock()
-		return fmt.Errorf("user %s not connected", userId)
-	}
-	s.Mutex.RUnlock()
-	return nil
-}
-
-func (s *Socket) On(message string, callback func(*websocket.Conn) func(any) error) {
-	s.events[message] = callback
+func InitListeners(socket *mysocket.Socket, handler *controllers.ChatSocketControllers) {
+	socket.On("chat message", handler.ChatMessage)
+	socket.On("request", handler.RequestFriend)
+	socket.On("accept", handler.AcceptFriendRequest)
+	socket.On("reject", handler.RejectFriendRequest)
+	socket.On("remove request", handler.RemoveFriendRequest)
+	socket.On("create convo", handler.CreateConvo)
+	socket.On("remove convo", handler.RemoveConvo)
+	socket.On("unfriend", handler.Unfriend)
+	socket.On("disconnect", handler.UnregisterUser)
 }
