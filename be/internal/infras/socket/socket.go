@@ -2,6 +2,7 @@ package socket
 
 import (
 	"root/internal/adapter/controllers"
+	"root/internal/adapter/middleware"
 	"root/internal/domain/usecases"
 	databases "root/internal/infras/db"
 	"root/internal/infras/repository"
@@ -24,6 +25,7 @@ func InitServer(server *mysocket.Server) {
 	convoRepo := repository.NewConvoRepo(databases.MessageDB, databases.UserDB)
 	convoUseCase := usecases.NewConvoUseCases(convoRepo)
 	handler := controllers.NewChatSocketControllers(userUseCase, friendUseCase, convoUseCase)
+	server.Use(middleware.JWTAuth(userUseCase))
 	server.On(func(socket *mysocket.Socket) {
 		handler.RegisterUser(socket, nil)
 		InitListeners(socket, handler)

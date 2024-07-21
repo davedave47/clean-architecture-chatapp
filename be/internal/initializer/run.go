@@ -19,6 +19,10 @@ func Run() {
 	databases.MessageDB = mongoDatabase
 	defer cleanupMongo()
 
+	redisDatabase, cleanupRedis := initRedis()
+	databases.SocketDB = redisDatabase
+	defer cleanupRedis()
+
 	r := InitRouter()
 	server := InitSocket(r)
 

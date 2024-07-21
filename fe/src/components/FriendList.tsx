@@ -2,7 +2,7 @@ import styles from '../styles/Friends.module.scss';
 import { RootState, AppDispatch } from '../redux';
 import {useSelector, useDispatch} from 'react-redux';
 import { useEffect } from 'react';
-import { fetchAllFriends, removeFriend } from '../redux/friendSlice';
+import { fetchAllFriends} from '../redux/friendSlice';
 import useSocket from '../hooks/useSocket';
 export default function FriendList() {
     const {friends, error} = useSelector((state: RootState) => state.friend);
@@ -17,7 +17,6 @@ export default function FriendList() {
     function handleRemove(id: string) {
         if (friends) {
             socket!.emit('unfriend', id)
-            dispatch(removeFriend(id))
         }
     }
     return (

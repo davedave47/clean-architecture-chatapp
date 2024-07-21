@@ -42,10 +42,18 @@ func (usecases *ConvoUseCases) GetConversations(userId string, skip int) ([]enti
 	}
 	if len(conversations) > 1 {
 		sort.Slice(conversations, func(i, j int) bool {
-			if conversations[i].LastMessage == nil {
-				return false
+			if conversations[i].LastMessage == nil && conversations[j].LastMessage != nil {
+				return false // i comes after j
 			}
-			return conversations[i].LastMessage.CreatedAt.After(conversations[j].LastMessage.CreatedAt)
+			if conversations[j].LastMessage == nil && conversations[i].LastMessage != nil {
+				return true // i comes before j
+			}
+			if conversations[i].LastMessage != nil && conversations[j].LastMessage != nil {
+				// Both are not nil, compare based on CreatedAt
+				return conversations[i].LastMessage.CreatedAt.After(conversations[j].LastMessage.CreatedAt)
+			}
+			// If both are nil, order doesn't matter, but let's keep it stable
+			return false
 		})
 	}
 	return conversations, nil
@@ -64,7 +72,11 @@ func (usecases *ConvoUseCases) GetMessages(conversationId string, amount int, sk
 }
 
 func (usecases *ConvoUseCases) DeleteConversation(conversationId string) error {
-	return usecases.convoRepo.DeleteConversation(conversationId)
+	err := usecases.convoRepo.DeleteConversation(conversationId)
+	if err != nil {
+		return err
+	}
+	return usecases.convoRepo.DeleteMessages(conversationId)
 }
 
 func (usecases *ConvoUseCases) DeleteMessage(messageId string) error {

@@ -14,6 +14,7 @@ type ConversationRepository interface {
 	GetMessages(conversationId string, amount int, skip int) ([]entities.Message, error)
 	DeleteConversation(conversationId string) error
 	DeleteMessage(messageId string) error
+	DeleteMessages(conversationId string) error
 	GetParticipants(conversationId string) ([]entities.User, error)
 	UploadFile(filename string, file []byte) (string, error)
 }

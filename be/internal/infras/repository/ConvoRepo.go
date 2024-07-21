@@ -258,6 +258,14 @@ func (repo *ConvoRepo) DeleteMessage(messageId string) error {
 	})
 	return err
 }
+func (repo *ConvoRepo) DeleteMessages(conversationId string) error {
+	ctx, cancel := context.WithTimeout(repo.messageDB.Context, 10*time.Second)
+	defer cancel()
+	_, err := repo.messageDB.Database.Collection("messages").DeleteMany(ctx, map[string]interface{}{
+		"conversationId": conversationId,
+	})
+	return err
+}
 func (repo *ConvoRepo) UploadFile(filename string, file []byte) (string, error) {
 	modifiedFilename := fmt.Sprintf("%s-%d", filename, time.Now().UnixNano())
 	err := os.WriteFile(fmt.Sprintf("./uploads/%s", modifiedFilename), file, 0644)

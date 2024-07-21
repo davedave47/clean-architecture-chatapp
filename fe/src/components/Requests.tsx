@@ -1,7 +1,6 @@
-import {useSelector, useDispatch} from 'react-redux';
-import { removeRequest, acceptRequest, rejectRequest } from '../redux/requestSlice';
+import {useSelector} from 'react-redux';
 import useSocket from '../hooks/useSocket';
-import { RootState, AppDispatch } from '../redux';
+import { RootState } from '../redux';
 import { useState } from 'react';
 import {IUser} from '../interfaces';
 import styles from '../styles/Requests.module.scss';
@@ -9,23 +8,19 @@ import styles from '../styles/Requests.module.scss';
 export default function Requests({onCancel}: {onCancel: () => void}) {
     const {requests, loading, error} = useSelector((state: RootState) => state.request);
     const [showSent, setShowSent] = useState(false);
-    const dispatch = useDispatch<AppDispatch>();
     const socket = useSocket();
 
     function handleAccept(user: IUser) {
         if (!socket) return;
-        socket.emit('accept', user.id);
-        dispatch(acceptRequest(user));
+        socket.emit('accept', user);
     }
     function handleReject(user: IUser) {
         if (!socket) return;
         socket.emit('reject', user.id);
-        dispatch(rejectRequest(user));
     }
     function handleRemove(user: IUser) {
         if (!socket) return;
         socket.emit('remove request', user.id);
-        dispatch(removeRequest(user));
     }
     return (
         <div className={styles.container}>

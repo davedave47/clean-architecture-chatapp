@@ -32,11 +32,12 @@ export default function ChatSection({conversation}: {conversation: IConversation
             return;
         }
         setMessages(data);
-        skip.current += 20;
+        skip.current = 20;
         return () => {
             skip.current = 0;
             canScroll.current = true;
             fetchedAll.current = false;
+            setMessages([]);
         }
     }, [data]);
     useEffect(() => {
@@ -57,7 +58,7 @@ export default function ChatSection({conversation}: {conversation: IConversation
             socket.off('chat message');
             console.log("chat message listener removed")
         }
-    }, [socket, conversation, dispatch]);
+    }, [socket, conversation.id, dispatch]);
 
     useEffect(() => {
         if (messagesEndRef.current&&canScroll.current) {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"root/internal/domain/entities"
 	"root/internal/domain/usecases"
+	databases "root/internal/infras/db"
 	"root/package/mysocket"
 )
 
@@ -17,6 +18,35 @@ type ChatSocketControllers struct {
 func NewChatSocketControllers(userUseCase *usecases.UserUseCases, friendUseCase *usecases.FriendUseCases, convoUseCase *usecases.ConvoUseCases) *ChatSocketControllers {
 	return &ChatSocketControllers{userUseCase: userUseCase, friendUseCase: friendUseCase, convoUseCase: convoUseCase}
 }
+
+func ConvertDataToUser(data any) (*entities.User, error) {
+	dataMap, ok := data.(map[string]interface{})
+	if !ok {
+		return nil, fmt.Errorf("error asserting data to user")
+	}
+
+	// Create a new entities.User and fill it with data from the map
+	return &entities.User{
+		Email:    dataMap["email"].(string),    // Assuming Email is a string
+		ID:       dataMap["id"].(string),       // Assuming ID is a string
+		Username: dataMap["username"].(string), // Assuming Username is a string
+	}, nil
+}
+
+func EmitToUser(socket *mysocket.Socket, userId string, event string, data any) error {
+	socketIds, err := databases.SocketDB.SMembers(userId)
+	if err != nil {
+		return err
+	}
+	for _, socketId := range socketIds {
+		err = socket.To(socketId).EmitMessage(event, data)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (controllers *ChatSocketControllers) UnregisterUser(socket *mysocket.Socket, data any) error {
 	user := socket.Locals("user").(*entities.User)
 	friends, err := controllers.friendUseCase.GetFriends(user.ID)
@@ -26,11 +56,12 @@ func (controllers *ChatSocketControllers) UnregisterUser(socket *mysocket.Socket
 	}
 
 	for _, friend := range friends {
-		err := socket.EmitMessageTo(friend.ID, "user logged out", user)
+		err := EmitToUser(socket, friend.ID, "user logged out", user)
 		if err != nil {
 			return err
 		}
 	}
+	databases.SocketDB.Del(user.ID)
 	fmt.Println(user.Username, "disconnected")
 	return nil
 }
@@ -39,6 +70,11 @@ func (controllers *ChatSocketControllers) RegisterUser(socket *mysocket.Socket, 
 	user := socket.Locals("user").(*entities.User)
 
 	fmt.Println(user.Username, "connected")
+
+	err := databases.SocketDB.SAdd(user.ID, socket.ID)
+	if err != nil {
+		return err
+	}
 
 	friends, err := controllers.friendUseCase.GetFriends(user.ID)
 
@@ -49,17 +85,22 @@ func (controllers *ChatSocketControllers) RegisterUser(socket *mysocket.Socket, 
 	onlineFriends := make([]entities.User, 0)
 
 	for _, friend := range friends {
-		err := socket.EmitMessageTo(friend.ID, "user logged on", user)
+		err := EmitToUser(socket, friend.ID, "user logged on", user)
 		if err != nil {
 			continue
 		}
-		onlineFriends = append(onlineFriends, friend)
+		connections, err := databases.SocketDB.SCard(friend.ID)
+		if err != nil {
+			continue
+		}
+		if connections > 0 {
+			onlineFriends = append(onlineFriends, friend)
+		}
 	}
 
 	fmt.Println("Online friends:", onlineFriends)
 
-	socket.EmitMessage("online", onlineFriends)
-	return nil
+	return socket.EmitMessage("online", onlineFriends)
 }
 func (controllers *ChatSocketControllers) ChatMessage(socket *mysocket.Socket, data any) error {
 	user := socket.Locals("user").(*entities.User)
@@ -77,24 +118,7 @@ func (controllers *ChatSocketControllers) ChatMessage(socket *mysocket.Socket, d
 	if err != nil {
 		return err
 	}
-	// if message.Content.File {
-	// 	for _, file := range message.Content.Files {
-	// 		path, err := controllers.convoUseCase.UploadFile(file.FileName, file.Buffer)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		message, err := controllers.convoUseCase.SendMessage(user.ID, message.ConversationID, entities.Content{
-	// 			Text: path,
-	// 			File: true,
-	// 		}, message.CreatedAt)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 		for _, participant := range participants {
-	// 			controllers.socket.EmitMessage("chat message", message, participant.ID)
-	// 		}
-	// 	}
-	// } else {
+
 	received, err := controllers.convoUseCase.SendMessage(user.ID, message.ConversationID, entities.Content{
 		Text: message.Content.Text,
 		File: message.Content.File,
@@ -103,45 +127,48 @@ func (controllers *ChatSocketControllers) ChatMessage(socket *mysocket.Socket, d
 		return err
 	}
 	for _, participant := range participants {
-		socket.EmitMessageTo(participant.ID, "chat message", received)
+		err := EmitToUser(socket, participant.ID, "chat message", received)
+		if err != nil {
+			return err
+		}
 	}
-	// }
 	return nil
 }
 
 func (controllers *ChatSocketControllers) RequestFriend(socket *mysocket.Socket, data any) error {
 	user := socket.Locals("user").(*entities.User)
-	friendId, ok := data.(string)
-	if !ok {
-		return fmt.Errorf("error asserting data to string")
-	}
-	err := controllers.friendUseCase.RequestFriend(user.ID, friendId)
+	friend, err := ConvertDataToUser(data)
 	if err != nil {
 		return err
 	}
-	socket.EmitMessageTo(friendId, "friend request", user)
-	return nil
+	err = controllers.friendUseCase.RequestFriend(user.ID, friend.ID)
+	if err != nil {
+		return err
+	}
+	EmitToUser(socket, user.ID, "request", friend)
+	return EmitToUser(socket, friend.ID, "friend request", user)
 }
 
 func (controllers *ChatSocketControllers) AcceptFriendRequest(socket *mysocket.Socket, data any) error {
 	user := socket.Locals("user").(*entities.User)
-	friendId, ok := data.(string)
-	if !ok {
-		return fmt.Errorf("error asserting data to string")
+	friend, err := ConvertDataToUser(data)
+	if err != nil {
+		return err
+
 	}
-	err := controllers.friendUseCase.AcceptFriendRequest(user.ID, friendId)
+	err = controllers.friendUseCase.AcceptFriendRequest(user.ID, friend.ID)
 	if err != nil {
 		return err
 	}
-	err = socket.EmitMessageTo(friendId, "friend accepted", user)
-	if err == nil {
-		friend, err := controllers.userUseCase.GetUserById(friendId)
-		if err != nil {
-			return err
-		}
-		socket.EmitMessageTo(user.ID, "user logged on", friend)
+	conn, err := databases.SocketDB.SCard(friend.ID)
+	if err != nil {
+		return err
 	}
-	return nil
+	EmitToUser(socket, user.ID, "accept", friend)
+	if conn > 0 {
+		EmitToUser(socket, user.ID, "user logged on", friend)
+	}
+	return EmitToUser(socket, friend.ID, "friend accepted", user)
 }
 
 func (controllers *ChatSocketControllers) RejectFriendRequest(socket *mysocket.Socket, data any) error {
@@ -154,8 +181,8 @@ func (controllers *ChatSocketControllers) RejectFriendRequest(socket *mysocket.S
 	if err != nil {
 		return err
 	}
-	socket.EmitMessageTo(friendId, "friend rejected", user)
-	return nil
+	EmitToUser(socket, user.ID, "reject", entities.User{ID: friendId})
+	return EmitToUser(socket, friendId, "friend rejected", user)
 }
 
 func (controllers *ChatSocketControllers) RemoveFriendRequest(socket *mysocket.Socket, data any) error {
@@ -168,8 +195,8 @@ func (controllers *ChatSocketControllers) RemoveFriendRequest(socket *mysocket.S
 	if err != nil {
 		return err
 	}
-	socket.EmitMessageTo(friendId, "friend removed", user)
-	return nil
+	EmitToUser(socket, user.ID, "friend rejected", entities.User{ID: friendId})
+	return EmitToUser(socket, friendId, "reject", user)
 }
 
 func (controllers *ChatSocketControllers) CreateConvo(socket *mysocket.Socket, data any) error {
@@ -190,7 +217,10 @@ func (controllers *ChatSocketControllers) CreateConvo(socket *mysocket.Socket, d
 		return err
 	}
 	for _, participant := range participants {
-		socket.EmitMessageTo(participant.ID, "convo", convo)
+		err = EmitToUser(socket, participant.ID, "convo", convo)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -210,7 +240,10 @@ func (controllers *ChatSocketControllers) RemoveConvo(socket *mysocket.Socket, d
 		return err
 	}
 	for _, participant := range participants {
-		socket.EmitMessageTo(participant.ID, "convo removed", convoId)
+		err = EmitToUser(socket, participant.ID, "convo removed", convoId)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
@@ -224,6 +257,6 @@ func (controllers *ChatSocketControllers) Unfriend(socket *mysocket.Socket, data
 	if err != nil {
 		return err
 	}
-	socket.EmitMessageTo(friendId, "unfriended", user)
-	return nil
+	EmitToUser(socket, user.ID, "unfriended", &entities.User{ID: friendId})
+	return EmitToUser(socket, friendId, "unfriended", user)
 }

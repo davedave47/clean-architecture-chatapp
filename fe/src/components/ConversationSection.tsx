@@ -1,7 +1,7 @@
 import Conversations from "./Conversations";
 import ChatSection from "./ChatSection";
 import { ConversationCreator } from "./ConversationCreator";
-import {useState, useCallback} from 'react';
+import {useState} from 'react';
 import { IConversation, IUser } from "../interfaces";
 import useSocket from "../hooks/useSocket";
 import chatStyles from '../styles/ChatSection.module.scss';
@@ -10,10 +10,9 @@ export default function ConversationSection() {
     const [currentConvo, setCurrentConvo] = useState<IConversation | null>(null);    
     const [isCreating, setIsCreating] = useState(false);
     const socket = useSocket();
-
-    const handleClick = useCallback(( conversation: IConversation) => {
+    const handleClick = (conversation: IConversation) => {
         setCurrentConvo(conversation);
-    },[])
+    }
     async function handlecreateConversation(participants: IUser[]) {
         console.log("emitting create convo", socket)
         socket?.emit("create convo", participants)

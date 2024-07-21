@@ -9,11 +9,10 @@ export default function useFetchData<T>(url: string, options?: RequestInit): [T 
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
         url = import.meta.env.VITE_BACKEND_URL + url;
     }
-
     useEffect(() => {
+        console.log("fetching data")
         const fetchData = async () => {
             try {
-                console.log("fetching")
                 const response = await fetch(url, options);
                 if (!response.ok) {
                     if (response.status === 401) {
@@ -32,6 +31,6 @@ export default function useFetchData<T>(url: string, options?: RequestInit): [T 
             }
         };
         fetchData();
-    }, [url, options, navigate]);
+    }, [url,options, navigate]);
     return [data, loading, error];
 }

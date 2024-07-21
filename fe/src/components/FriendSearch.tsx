@@ -1,12 +1,10 @@
 import { useState, useRef} from "react";
 import { IUser } from "../interfaces";
 import {useDebounce} from "../hooks/useDebounce";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector} from "react-redux";
 import { RootState } from "../redux";
 import useSocket from "../hooks/useSocket";
-import { removeFriend} from "../redux/friendSlice";
 import styles from '../styles/Friends.module.scss';
-import { sendRequest, removeRequest, rejectRequest, acceptRequest,  } from "../redux/requestSlice";
 export default function FriendSearch(){
     const prevSearch = useRef('');
     const [isSearching, setIsSearching] = useState(false);
@@ -55,31 +53,25 @@ const UserList = ({users}: {users: IUser[]}) => {
     const online = useSelector((state: RootState) => state.online);
     console.log("request", requests)
     const socket = useSocket();
-    const dispatch = useDispatch();
     function handleAdd(user: IUser){
         if (!socket) return;
-        socket.emit("request", user.id)
-        dispatch(sendRequest(user));
+        socket.emit("request", user)
     }
     function handleUnfriend(user: IUser){
         if (!socket) return;
         socket.emit("unfriend", user.id)
-        dispatch(removeFriend(user.id));
     }
     function handleCancel(user: IUser){
         if (!socket) return;
         socket.emit("remove request", user.id);
-        dispatch(removeRequest(user));
     }
     function handAccept(user: IUser){
         if (!socket) return;
-        socket.emit('accept', user.id);
-        dispatch(acceptRequest(user));
+        socket.emit('accept', user);
     }
     function handleReject(user: IUser){
         if (!socket) return;
         socket.emit('reject', user.id);
-        dispatch(rejectRequest(user));
     }
     return (
     <>

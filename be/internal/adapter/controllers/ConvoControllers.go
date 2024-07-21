@@ -66,3 +66,20 @@ func (controllers *ConvoControllers) UploadFile(c *fiber.Ctx) error {
 	}
 	return c.JSON(filePaths)
 }
+
+func (controllers *ConvoControllers) DeleteConvo(c *fiber.Ctx) error {
+	var body struct {
+		ConversationId string `json:"conversationId"`
+	}
+
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	err := controllers.convoUsecase.DeleteConversation(body.ConversationId)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": err.Error()})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"message": "Conversation deleted"})
+}

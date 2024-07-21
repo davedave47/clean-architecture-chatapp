@@ -83,8 +83,10 @@ func initConvoRoutes(api *fiber.Router) {
 	convoController := controllers.NewConvoControllers(convoUseCase)
 
 	JWTAuth := middleware.JWTAuth(userUseCase)
+	isSelforAdmin := middleware.IsSelforAdmin(userUseCase)
 	convo.Get("/", JWTAuth, convoController.GetConversations)
 	convo.Post("/messages", JWTAuth, convoController.GetMessages)
+	convo.Delete("/delete", JWTAuth, isSelforAdmin, convoController.DeleteConvo)
 	convo.Post("/upload", JWTAuth, convoController.UploadFile)
 }
 

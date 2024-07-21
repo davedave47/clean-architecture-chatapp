@@ -57,7 +57,6 @@ export default function Conversations({onCreateConversation, onClick, selected}:
             <div className={styles.conversations}>
             {error ? <p>{error}</p> : conversations ? selected && conversations.map((conversation: IConversation) => {    
                 const title = conversation.name || conversation.participants.filter(participant => participant.id !== user.id).map(participant => participant.username).join(', ');
-                console.log("online Users", onlineUsers)
                 const isOnline = onlineUsers ? conversation.participants.filter(participant => onlineUsers.map(user => user.id).includes(participant.id)).length+1 >= (conversation.participants.length+1) / 2:false;
                 const senderName = conversation.lastMessage?.senderId === user.id ? "You":conversation.participants.find(participant => participant.id === conversation.lastMessage?.senderId)?.username;
                 return (

@@ -15,4 +15,9 @@ func loadConfig() {
 		URI:      os.Getenv("MONGO_URL"),
 		Database: os.Getenv("MONGO_DATABASE"),
 	})
+	loadRedisConfig(&RedisConfiguration{
+		Addr:     os.Getenv("REDIS_URL"),
+		Password: os.Getenv("REDIS_PASSWORD"),
+		DB:       os.Getenv("REDIS_DB"),
+	})
 }

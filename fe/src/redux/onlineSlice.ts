@@ -17,6 +17,9 @@ const onlineSlice = createSlice({
         },
         loggedOn(state, action: PayloadAction<IUser>) {
             if (state!==null) {
+                if (action.payload.username === '') {
+                    return state;
+                }
                 state.push(action.payload);
             }
         },
