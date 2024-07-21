@@ -82,7 +82,12 @@
 }
 @media (max-width: 768px) {
     .chatSection {
-        width: 60vw;
+        width: 90vw;
+        form {
+            button {
+                display: none;
+            }
+        }
     }
     
 }

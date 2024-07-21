@@ -136,7 +136,7 @@ export default function ChatSection({conversation}: {conversation: IConversation
                 <>
                     <div className={styles.messagesContainer} onScroll={handleScroll}>
                         {isLoading && <p>Loading...</p>}
-                        {messages.map((message: IMessage) => {
+                        {messages.length > 0 && messages[0].conversationId === conversation.id && messages.map((message: IMessage) => {
                             return <Message key={message.id} message={message} senderName={conversation.participants.find(u => u.id === message.senderId)!.username} />
                         })}
                         <div ref={messagesEndRef}> </div>
