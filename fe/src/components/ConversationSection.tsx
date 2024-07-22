@@ -29,7 +29,7 @@ export default function ConversationSection() {
         }>  {isCreating ? <ConversationCreator onCancel={()=>{setIsCreating(false)}} onCreate={handlecreateConversation}/>:
             <Conversations onCreateConversation={()=>{setIsCreating(true)}} onClick={handleClick}  selected={currentConvo}/>}
             <div className={chatStyles.chatSection}>
-                {currentConvo ? <ChatSection conversation={currentConvo}/>:<p>Loading...</p>}
+                {currentConvo ? <ChatSection conversation={currentConvo} key={currentConvo.id}/>:<p>Loading...</p>}
             </div>
         </div>
   );

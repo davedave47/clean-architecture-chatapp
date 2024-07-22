@@ -34,7 +34,7 @@ export default function Requests({onCancel}: {onCancel: () => void}) {
             <div>
                 {!showSent ? 
                     requests.received.map(request => (
-                    <div className={styles.items}>
+                    <div className={styles.items} key={request.id}>
                         <p>{request.username}</p>
                         <button onClick={() => {handleAccept(request)}}>Accept</button>
                         <button onClick={() => {handleReject(request)}}>Reject</button>
