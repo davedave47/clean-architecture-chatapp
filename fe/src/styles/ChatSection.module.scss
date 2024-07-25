@@ -1,8 +1,8 @@
 .chatSection{
     background-color: #555;
     width: 80vw;
-    padding:10px;
     height: 100%;
+    padding-bottom: .3%;;
     .messagesContainer{
         display: flex;
         flex-direction: column;
@@ -42,30 +42,87 @@
         flex-direction: row;
         width: 100%;
         justify-content: center;
-        padding: 0 10px;
+        padding: 0 0.5%;
         align-items: center;
         height: 8%;
-        label {
-            margin-bottom: 5px;
-            cursor: pointer;
-            text-align: center;
+        gap: .5%;
+        label, .recorder {
             display: flex;
             justify-content: center;
             align-items: center;
             background-color: antiquewhite;
             max-width: 10%;
             flex:1;
-            margin-right: 5px;
             border-radius: 10%;
             height: 65%;
+            cursor: pointer;
         }
-        input {
+        .recorder {
+            background-color: black;
+            &:hover {
+                background-color: cyan;
+            }
+            &:active {
+                border: none;
+                transition: none;
+            }
+        }
+        .audio {
+            display: flex;
+            height: 100%;
+            align-items: center;
+            gap: 1%;
+            div {
+                height: 100%;
+                span {
+                    font-size: .7em;
+                    color:#555;
+                    background-color: lightgray;
+                    border-radius: 15px;
+                    padding: 5px;
+                }
+            }
+            .canvas {
+                padding: 0;
+                flex:20;
+                background-color: none;
+                height: 100%;
+                position: relative;
+                canvas {
+                    top: 0;
+                    left: 0;
+                    width:100%;
+                    overflow-x: hidden;
+                    display: block;
+                    height: 100%;
+                }
+            }   
+            button {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                background-color: black;
+                max-width: 10%;
+                flex: 1;
+                padding: 0;
+                height: 100%;
+                i {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+            }
+        }
+        .audio, input {
             padding: 10px;
             border: none;
             border-radius: 5px;
-            margin-right: 5px;
             flex:20;
         }
+        .audio {
+            padding: 10px 0;
+        }
+        
         button {
             padding: 10px;
             border: none;
@@ -84,8 +141,12 @@
     .chatSection {
         width: 90vw;
         form {
-            button {
-                display: none;
+            label {
+                flex: 2;
+            }
+            .audio, input {
+                flex: 10;
+                margin-right: 0;
             }
         }
     }

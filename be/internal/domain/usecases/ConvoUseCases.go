@@ -19,7 +19,7 @@ func (usecases *ConvoUseCases) CreateConvo(users []entities.User) (*entities.Con
 	return usecases.convoRepo.CreateConversation(users)
 }
 
-func (usecases *ConvoUseCases) GetConversations(userId string, skip int) ([]entities.Conversation, error) {
+func (usecases *ConvoUseCases) GetConversations(userId string, skip int) ([]*entities.Conversation, error) {
 	conversations, err := usecases.convoRepo.GetConversations(userId, skip)
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (usecases *ConvoUseCases) GetConversations(userId string, skip int) ([]enti
 
 		}
 		if len(lastMessage) > 0 {
-			conversations[i].LastMessage = &lastMessage[0]
+			conversations[i].LastMessage = lastMessage[0]
 		}
 	}
 	if len(conversations) > 1 {
@@ -59,7 +59,7 @@ func (usecases *ConvoUseCases) GetConversations(userId string, skip int) ([]enti
 	return conversations, nil
 }
 
-func (usecases *ConvoUseCases) GetTalkedToUsers(userId string) ([]entities.User, error) {
+func (usecases *ConvoUseCases) GetTalkedToUsers(userId string) ([]*entities.User, error) {
 	return usecases.convoRepo.GetTalkedToUsers(userId)
 }
 
@@ -67,7 +67,7 @@ func (usecases *ConvoUseCases) SendMessage(senderId string, conversationId strin
 	return usecases.convoRepo.SendMessage(senderId, conversationId, content, createdAt)
 }
 
-func (usecases *ConvoUseCases) GetMessages(conversationId string, amount int, skip int) ([]entities.Message, error) {
+func (usecases *ConvoUseCases) GetMessages(conversationId string, amount int, skip int) ([]*entities.Message, error) {
 	return usecases.convoRepo.GetMessages(conversationId, amount, skip)
 }
 
@@ -83,7 +83,7 @@ func (usecases *ConvoUseCases) DeleteMessage(messageId string) error {
 	return usecases.convoRepo.DeleteMessage(messageId)
 }
 
-func (usecases *ConvoUseCases) GetParticipants(conversationId string) ([]entities.User, error) {
+func (usecases *ConvoUseCases) GetParticipants(conversationId string) ([]*entities.User, error) {
 	return usecases.convoRepo.GetParticipants(conversationId)
 }
 

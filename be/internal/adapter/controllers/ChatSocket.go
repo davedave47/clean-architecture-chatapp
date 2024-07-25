@@ -6,7 +6,7 @@ import (
 	"root/internal/domain/entities"
 	"root/internal/domain/usecases"
 	databases "root/internal/infras/db"
-	"root/package/mysocket"
+	"root/pkg/mysocket"
 )
 
 type ChatSocketControllers struct {
@@ -94,7 +94,7 @@ func (controllers *ChatSocketControllers) RegisterUser(socket *mysocket.Socket, 
 			continue
 		}
 		if connections > 0 {
-			onlineFriends = append(onlineFriends, friend)
+			onlineFriends = append(onlineFriends, *friend)
 		}
 	}
 

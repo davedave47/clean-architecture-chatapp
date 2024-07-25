@@ -30,6 +30,9 @@ func (s *Socket) On(message string, callback func(*Socket, any) error) {
 	s.events[message] = callback
 }
 func (s *Socket) EmitMessage(event string, data any) error {
+	if s == nil {
+		return fmt.Errorf("Socket is nil")
+	}
 	fmt.Println("Emitting message", event, "to", s.ID)
 	return s.conn.WriteJSON(Message{
 		Event: event,
@@ -39,10 +42,11 @@ func (s *Socket) EmitMessage(event string, data any) error {
 
 func (s *Socket) To(socketId string) *Socket {
 	sv := s.server
-	sv.mutex.RLock()
-	socket, ok := sv.sockets[socketId]
-	sv.mutex.RUnlock()
-	if !ok {
+	cache := sv.getCache(socketId)
+
+	socket, err := cache.getSocket(socketId)
+
+	if err != nil {
 		fmt.Println("Socket with id", socketId, "not found")
 		return nil
 	}
@@ -55,14 +59,13 @@ func (s *Socket) Locals(key string) any {
 
 func (s *Socket) Broadcast(event string, data any) {
 	sv := s.server
-	sv.mutex.RLock()
-	for _, socket := range sv.sockets {
-		socket.conn.WriteJSON(Message{
-			Event: event,
-			Data:  data,
-		})
+	for _, cache := range sv.sockets {
+		cache.RLock()
+		for _, socket := range cache.sockets {
+			socket.EmitMessage(event, data)
+		}
+		cache.RUnlock()
 	}
-	sv.mutex.RUnlock()
 }
 
 func (s *Socket) Close() {

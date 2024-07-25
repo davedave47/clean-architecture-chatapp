@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	databases "root/internal/infras/db"
-
-	"github.com/neo4j/neo4j-go-driver/v5/neo4j"
 )
 
 // Neo4jDB is the struct for neo4j database
@@ -19,25 +17,13 @@ type Neo4jConfiguration struct {
 var neo4jConfig *Neo4jConfiguration
 
 func initNeo4j() (*databases.Neo4jDatabase, func()) {
-	ctx := context.Background()
-	driver, err := neo4j.NewDriverWithContext(
-		neo4jConfig.Url,
-		neo4j.BasicAuth(neo4jConfig.Username, neo4jConfig.Password, ""))
+	connection, err := databases.NewNeo4jConnection(context.Background(), neo4jConfig.Url, neo4jConfig.Username, neo4jConfig.Password, neo4jConfig.Database, "")
 	if err != nil {
-		panic(err)
-	}
-	err = driver.VerifyConnectivity(ctx)
-	if err != nil {
+		fmt.Println("Failed to connect to Neo4j")
 		panic(err)
 	}
 	fmt.Println("Connected to Neo4j")
-	return &databases.Neo4jDatabase{
-			Driver:   &driver,
-			Database: neo4jConfig.Database,
-			Context:  ctx,
-		}, func() {
-			driver.Close(ctx)
-		}
+	return connection, connection.Close
 }
 
 func loadNeo4jConfig(config *Neo4jConfiguration) {

@@ -15,7 +15,7 @@ type User struct {
 
 type Conversation struct {
 	ID           string    `json:"id"`
-	Participants []User    `json:"participants"`
+	Participants []*User   `json:"participants"`
 	CreatedAt    time.Time `json:"createdAt"`
 	Name         string    `json:"name"`
 	LastMessage  *Message  `json:"lastMessage,omitempty"`

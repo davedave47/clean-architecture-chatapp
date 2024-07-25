@@ -14,7 +14,7 @@ func InitRouter() *fiber.App {
 		BodyLimit: 1024 * 1024 * 25,
 	})
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     os.Getenv("FRONTEND_URL") + ", http://localhost:5173",
+		AllowOrigins:     os.Getenv("FRONTEND_URL") + ", http://localhost:5173, http://192.168.1.222:5173",
 		AllowCredentials: true,
 	}))
 	//Default middlewares

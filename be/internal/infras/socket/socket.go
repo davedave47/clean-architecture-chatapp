@@ -6,7 +6,7 @@ import (
 	"root/internal/domain/usecases"
 	databases "root/internal/infras/db"
 	"root/internal/infras/repository"
-	"root/package/mysocket"
+	"root/pkg/mysocket"
 
 	"github.com/gofiber/fiber/v2"
 )

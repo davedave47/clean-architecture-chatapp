@@ -2,7 +2,7 @@ import { IMessage} from '../interfaces';
 import { useSelector} from 'react-redux';
 import { RootState } from '../redux';
 import VideoPlayer from './VideoPlayer';
-
+import AudioPlayer from './AudioPlayer';
 export default function Message({ message, senderName }: { message: IMessage, senderName: string }) {
     const user = useSelector((state: RootState) => state.user);
     const isOwnMessage = message.senderId === user.id;
@@ -10,6 +10,7 @@ export default function Message({ message, senderName }: { message: IMessage, se
     const fileExtension = filename?.substring(filename.lastIndexOf('.') + 1);
     const isImage = fileExtension === 'jpg' || fileExtension === 'jpeg' || fileExtension === 'png' || fileExtension === 'gif';
     const isVideo = fileExtension === 'mp4' || fileExtension === 'webm' || fileExtension === 'ogg' || fileExtension === 'mov';
+    const isAudio = fileExtension === 'mp3' || fileExtension === 'wav' || fileExtension === 'ogg';
     // const mimeType = fileExtension === 'mov' ? 'video/mp4' : `video/${fileExtension}`;
 
     return (
@@ -37,7 +38,6 @@ export default function Message({ message, senderName }: { message: IMessage, se
             <span style={{
                 whiteSpace: 'pre-wrap',
                 wordBreak: 'break-word',
-            
             }}>
                 {message.content.file ? 
                     isImage? 
@@ -54,11 +54,14 @@ export default function Message({ message, senderName }: { message: IMessage, se
                     :
                     isVideo? 
                     <VideoPlayer src={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text}/>
+                   :isAudio?
+                   <AudioPlayer src={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} visualize={true}/>
                    :
                     <a href={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} download>
                         {message.content.text.split('/').pop()?.replace(/-\d+$/, '')}
                     </a>
-                :
+                    :
+                    
                 message.content.text}
             </span>
         </div>

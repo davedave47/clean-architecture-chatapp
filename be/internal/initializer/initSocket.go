@@ -2,7 +2,7 @@ package initializer
 
 import (
 	"root/internal/infras/socket"
-	"root/package/mysocket"
+	"root/pkg/mysocket"
 
 	"github.com/gofiber/fiber/v2"
 )

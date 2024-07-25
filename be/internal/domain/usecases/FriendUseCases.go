@@ -21,7 +21,7 @@ func (usecases *FriendUseCases) CheckFriend(userId string, friendId string) (boo
 	return usecases.FriendRepo.CheckFriend(userId, friendId)
 }
 
-func (usecases *FriendUseCases) GetFriends(userId string) ([]entities.User, error) {
+func (usecases *FriendUseCases) GetFriends(userId string) ([]*entities.User, error) {
 	return usecases.FriendRepo.GetFriends(userId)
 }
 
@@ -50,10 +50,10 @@ func (usecases *FriendUseCases) RemoveFriendRequest(userId string, friendId stri
 	return usecases.FriendRepo.RejectFriendRequest(friendId, userId)
 }
 
-func (usecases *FriendUseCases) GetReceivedFriendRequests(userId string) ([]entities.User, error) {
+func (usecases *FriendUseCases) GetReceivedFriendRequests(userId string) ([]*entities.User, error) {
 	return usecases.FriendRepo.GetReceivedFriendRequests(userId)
 }
 
-func (usecases *FriendUseCases) GetSentFriendRequests(userId string) ([]entities.User, error) {
+func (usecases *FriendUseCases) GetSentFriendRequests(userId string) ([]*entities.User, error) {
 	return usecases.FriendRepo.GetSentFriendRequests(userId)
 }
