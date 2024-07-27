@@ -1,6 +1,6 @@
 import { IMessage, IConversation } from "@/interfaces";
-import Message from "./Message";
-import ChatSubmit from "./ChatSubmit";
+import Message from "../../components/chat/Message";
+import ChatSubmit from "../../components/chat/ChatSubmit";
 import useSocket from "@/hooks/useSocket";
 import { useEffect, useState, useMemo, useRef } from "react";
 import useFetchData from "@/hooks/useFetchData";

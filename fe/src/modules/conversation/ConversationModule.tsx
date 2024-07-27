@@ -1,11 +1,11 @@
-import Conversations from "./Conversations";
-import ChatSection from "@/components/chat/ChatSection";
-import { ConversationCreator } from "./ConversationCreator";
+import Conversations from "../../components/conversation/Conversations";
+import ChatSection from "@/modules/chat/ChatSection";
+import { ConversationCreator } from "../../components/conversation/ConversationCreator";
 import {useState} from 'react';
 import { IConversation, IUser } from "@/interfaces";
 import useSocket from "@/hooks/useSocket";
 import chatStyles from '../styles/ChatSection.module.scss';
-export default function ConversationSection() {
+export default function ConversationModule() {
     console.log("conversation section mounted")
     const [currentConvo, setCurrentConvo] = useState<IConversation | null>(null);    
     const [isCreating, setIsCreating] = useState(false);

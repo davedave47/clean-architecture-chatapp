@@ -1,8 +1,8 @@
 import { useState } from "react";
-import FriendList from "./FriendList";
-import FriendSearch from "./FriendSearch";
+import FriendList from "@/components/friends/FriendList";
+import FriendSearch from "@/components/friends/FriendSearch";
 import styles from '@/styles/Friends.module.scss';
-export default function Friends({onCancel}: {onCancel: () => void}){
+export default function FriendModule({onCancel}: {onCancel: () => void}){
     const [isSearching, setIsSearching] = useState(false);
     return (
         <div className={styles.container}>
