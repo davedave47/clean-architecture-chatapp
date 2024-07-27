@@ -67,52 +67,6 @@
                 transition: none;
             }
         }
-        .audio {
-            display: flex;
-            height: 100%;
-            align-items: center;
-            gap: 1%;
-            div {
-                height: 100%;
-                span {
-                    font-size: .7em;
-                    color:#555;
-                    background-color: lightgray;
-                    border-radius: 15px;
-                    padding: 5px;
-                }
-            }
-            .canvas {
-                padding: 0;
-                flex:20;
-                background-color: none;
-                height: 100%;
-                position: relative;
-                canvas {
-                    top: 0;
-                    left: 0;
-                    width:100%;
-                    overflow-x: hidden;
-                    display: block;
-                    height: 100%;
-                }
-            }   
-            button {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                background-color: black;
-                max-width: 10%;
-                flex: 1;
-                padding: 0;
-                height: 100%;
-                i {
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                }
-            }
-        }
         .audio, input {
             padding: 10px;
             border: none;
@@ -120,9 +74,18 @@
             flex:20;
         }
         .audio {
+            display: flex;
             padding: 10px 0;
+            height: 100%;
+            gap: .75%;
+            .visualizer {
+                flex: 20;
+            }
+            button{
+                flex: 1;
+                background-color: black;
+            }
         }
-        
         button {
             padding: 10px;
             border: none;

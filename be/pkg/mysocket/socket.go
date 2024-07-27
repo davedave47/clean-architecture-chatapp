@@ -5,6 +5,8 @@ import (
 
 	"github.com/gofiber/contrib/websocket"
 	"github.com/google/uuid"
+
+	"root/pkg/set"
 )
 
 type Message struct {
@@ -12,22 +14,23 @@ type Message struct {
 	Data  any    `json:"data"`
 }
 type Socket struct {
-	events map[string]func(*Socket, any) error
 	ID     string
 	conn   *websocket.Conn
+	events *set.Set[string]
 	server *Server
 }
 
 func NewSocket(conn *websocket.Conn) *Socket {
 	return &Socket{
-		events: make(map[string]func(*Socket, any) error),
+		events: set.NewSet[string](),
 		ID:     uuid.New().String(),
 		conn:   conn,
 	}
 }
 
 func (s *Socket) On(message string, callback func(*Socket, any) error) {
-	s.events[message] = callback
+	s.events.Add(message)
+	s.server.addEvent(message, callback)
 }
 func (s *Socket) EmitMessage(event string, data any) error {
 	if s == nil {
@@ -38,6 +41,10 @@ func (s *Socket) EmitMessage(event string, data any) error {
 		Event: event,
 		Data:  data,
 	})
+}
+
+func (s *Socket) Off(event string) {
+	s.events.Remove(event)
 }
 
 func (s *Socket) To(socketId string) *Socket {

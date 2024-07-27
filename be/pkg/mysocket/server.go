@@ -1,6 +1,7 @@
 package mysocket
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -11,11 +12,16 @@ import (
 )
 
 type Server struct {
+	events        map[string]func(*Socket, any) error
 	sockets       []*cache
 	app           *fiber.App
 	config        *websocket.Config
 	shutdownFlag  bool
 	shutdownMutex sync.RWMutex
+	register      chan *Socket
+	unregister    chan *Socket
+	ctx           context.Context
+	cancel        context.CancelFunc
 	sync.RWMutex
 }
 type cache struct {
@@ -34,12 +40,18 @@ func NewServer(r *fiber.App, config ...Config) *Server {
 			sockets: make(map[string]*Socket),
 		}
 	}
+	ctx, cancel := context.WithCancel(context.Background())
 	if len(config) == 0 {
 		return &Server{
 			sockets:       initialCache,
 			app:           r,
 			shutdownFlag:  false,
 			shutdownMutex: sync.RWMutex{},
+			events:        make(map[string]func(*Socket, any) error),
+			register:      make(chan *Socket),
+			unregister:    make(chan *Socket),
+			ctx:           ctx,
+			cancel:        cancel,
 		}
 	}
 	return &Server{
@@ -48,6 +60,11 @@ func NewServer(r *fiber.App, config ...Config) *Server {
 		config:        &config[0].Config,
 		shutdownFlag:  false,
 		shutdownMutex: sync.RWMutex{},
+		events:        make(map[string]func(*Socket, any) error),
+		register:      make(chan *Socket),
+		unregister:    make(chan *Socket),
+		ctx:           ctx,
+		cancel:        cancel,
 	}
 }
 
@@ -92,14 +109,14 @@ func (sv *Server) On(callback func(*Socket)) {
 	sv.app.Get("/ws", websocket.New(func(c *websocket.Conn) {
 
 		socket := NewSocket(c)
-		sv.Register(socket)
+		sv.register <- socket
 		callback(socket)
 
 		defer func() {
-			if event, ok := socket.events["disconnect"]; ok {
-				event(socket, nil)
+			if socket.events.Contains("disconnect") {
+				sv.events["disconnect"](socket, nil)
 			}
-			sv.Unregister(socket)
+			sv.unregister <- socket
 		}()
 
 		var message Message
@@ -108,11 +125,8 @@ func (sv *Server) On(callback func(*Socket)) {
 			if err != nil {
 				break
 			}
-			if event, ok := socket.events[message.Event]; ok {
-				err = event(socket, message.Data)
-				if err != nil {
-					fmt.Println("Error handling event", err)
-				}
+			if socket.events.Contains(message.Event) {
+				sv.events[message.Event](socket, message.Data)
 			} else {
 				fmt.Println("Event not found")
 				continue
@@ -141,6 +155,7 @@ func (sv *Server) Register(s *Socket) {
 		return
 	}
 	sv.shutdownMutex.RUnlock()
+	fmt.Println("Registering socket", s.ID)
 	cache := sv.getCache(s.ID)
 	cache.setSocket(s.ID, s)
 	s.server = sv
@@ -167,8 +182,37 @@ func (sv *Server) Close() {
 		}
 		cache.Unlock()
 	}
+
+	for event := range sv.events {
+		delete(sv.events, event)
+	}
+
+	sv.cancel()
+
+	close(sv.register)
+	close(sv.unregister)
 }
 
 func (sv *Server) Listen(address string) error {
+	go sv.Run()
 	return sv.app.Listen(address)
+}
+
+func (sv *Server) addEvent(event string, callback func(*Socket, any) error) {
+	sv.Lock()
+	defer sv.Unlock()
+	sv.events[event] = callback
+}
+
+func (sv *Server) Run() {
+	for {
+		select {
+		case <-sv.ctx.Done():
+			return
+		case socket := <-sv.register:
+			sv.Register(socket)
+		case socket := <-sv.unregister:
+			sv.Unregister(socket)
+		}
+	}
 }

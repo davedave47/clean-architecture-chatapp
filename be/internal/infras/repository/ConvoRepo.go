@@ -68,27 +68,22 @@ func (repo *ConvoRepo) GetConversations(userId string, skip int) ([]*entities.Co
 			"userId": userId,
 		})
 	if err != nil {
-		fmt.Println("71")
 		return nil, err
 	}
 	conversations := make([]*entities.Conversation, len(records))
 	for index, record := range records {
 		convoNode, err := databases.GetNode(record, "conversation")
 		if err != nil {
-			fmt.Println("78")
 			return nil, err
 		}
 		name, ok := convoNode.Props["name"].(string)
 		if !ok {
 			name = ""
 		}
-		fmt.Println("81")
 		createdAt, err := time.Parse(time.RFC3339, (convoNode.Props["createdAt"]).(string))
 		if err != nil {
-			fmt.Println("83")
 			return nil, err
 		}
-		fmt.Println("85")
 		conversations[index] = &entities.Conversation{
 			ID:           convoNode.Props["id"].(string),
 			Participants: []*entities.User{},

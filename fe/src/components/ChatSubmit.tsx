@@ -2,84 +2,49 @@ import { FormEvent, useState, useEffect, useRef } from 'react';
 import styles from '../styles/ChatSection.module.scss';
 import AudioPlayer from './AudioPlayer';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-import { AudioVisualizer } from 'react-audio-visualize';
 
 export default function ChatSubmit({ onSend }: { onSend: (message: string, files?: FileList) => void }) {
   const [message, setMessage] = useState('');
   const [files, setFiles] = useState<FileList | null>(null);
   const [isAudio, setIsAudio] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [audioUrl, setAudioUrl] = useState('');
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const [audioChunks, setAudioChunks] = useState<Blob[]>([]);
-  const recordingStopped = useRef(true);
-  const AudioVisualizerRef = useRef<HTMLCanvasElement>(null);
-  const [currentAudioTime, setCurrentAudioTime] = useState(0);
-  const durationRef = useRef(0);
-  const isPlaying = useRef(false)
-  useEffect(() => {
-    if (currentAudioTime === 0) return
-    isPlaying.current = currentAudioTime < durationRef.current
-    let animationFrameId: number;
-    
-    function updateMask() {
-      const canvas = AudioVisualizerRef.current
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-      const progress = currentAudioTime / durationRef.current;
-      const maskWidth = progress * canvas.width;
-      console.log("progress")
-
-      // Draw the mask
-      ctx.save();
-      ctx.globalCompositeOperation = 'source-in';
-      ctx.fillStyle = '#ffffff'; // Color for played bars
-      ctx.fillRect(0, 0, maskWidth, 75);
-      ctx.restore();
-
-      if (progress === 1) return
-      animationFrameId=requestAnimationFrame(updateMask)
-    }
-      // Request the next frame
-    updateMask();
-
-    return () => {
-      cancelAnimationFrame(animationFrameId)
-    }
-  }, [currentAudioTime]);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
   useEffect(() => {
     return () => {
       if (audioUrl) {
         URL.revokeObjectURL(audioUrl);
+        setAudioUrl(null);
       }
-    };
-  }, [audioUrl]);
+    }
+  },[audioUrl])
   useEffect(() => {
     return () => {
-      console.log('cleanup');
       setIsRecording(!isAudio);
       setAudioChunks([]);
-      setAudioUrl('');
+      setAudioUrl(null);
       if (mediaRecorderRef.current) {
         mediaRecorderRef.current.stop();
       }
-      recordingStopped.current = true;
     };
   },[isAudio])
 
   useEffect(() => {
-    recordingStopped.current = !isRecording;
     if (isRecording) {
+      setAudioUrl(null);
       setAudioChunks([]);
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices.getUserMedia({ audio: true })
           .then((stream) => {
             mediaRecorderRef.current = new MediaRecorder(stream);
             mediaRecorderRef.current.ondataavailable = (event: BlobEvent) => {
-              console.log("data available");
-              if (recordingStopped.current) return
-              setAudioChunks((prev) => [...prev, event.data]);
+              setIsRecording(prevIsRecording => {
+                if (prevIsRecording) {
+                  setAudioChunks((prev) => [...prev, event.data]);
+                }
+                return prevIsRecording;
+              });
             };
             mediaRecorderRef.current.start(100);
           })
@@ -90,19 +55,11 @@ export default function ChatSubmit({ onSend }: { onSend: (message: string, files
         console.error("getUserMedia not supported");
       }
     } else {
+      setAudioUrl(URL.createObjectURL(new Blob(audioChunks, { type: 'audio/mp3' })));
       mediaRecorderRef.current?.stop();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRecording]);
-
-  useEffect(() => {
-    if (!isRecording && audioChunks.length > 0) {
-      const audioBlob = new Blob(audioChunks, { type: 'audio/mp3' });
-      const newAudioUrl = URL.createObjectURL(audioBlob);
-      setAudioUrl(newAudioUrl);
-      console.log("audio url", newAudioUrl);
-      console.log("audio chunks", audioBlob.size);
-    }
-  }, [isRecording, audioChunks]);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -111,7 +68,6 @@ export default function ChatSubmit({ onSend }: { onSend: (message: string, files
       dataTransfer.items.add(new File(audioChunks, `${Date.now()}.mp3`));
       onSend(message, dataTransfer.files);
       setAudioChunks([]);
-      setAudioUrl('');
       setIsRecording(false);
       return;
     }
@@ -143,32 +99,18 @@ export default function ChatSubmit({ onSend }: { onSend: (message: string, files
         }}>&#x1F3A4;</label>
         {isAudio ?
           <div className={styles.audio}>
-            {!isRecording &&
-              <AudioPlayer src={audioUrl} key={audioUrl} onTimeUpdate={(number)=>{setCurrentAudioTime(number)}} onLoad={(duration)=>{durationRef.current=duration}}/>
-            }
-            {audioChunks.length > 0 &&
-            <span className = {styles.canvas}>
-            {isPlaying.current && <AudioVisualizer
-              style={{ position: 'absolute', top: 0, left: 0, zIndex: 2}}
-              blob={new Blob(audioChunks, { type: 'audio/mp3' })}
-              width={500}
-              height={75}
-              barWidth={2}
-              gap={2}
-              barColor={'#000000'}
-              ref={AudioVisualizerRef}
-            />}
-            <AudioVisualizer
-              style={{ position: 'absolute', top: 0, left: 0, zIndex: 1}}
-              blob={new Blob(audioChunks, { type: 'audio/mp3' })}
-              width={500}
-              height={75}
-              barWidth={2}
-              gap={2}
-              barColor={'#000000'}
-            />
-          </span>}
-            <button type="button" onClick={() => {setIsRecording(!isRecording); isPlaying.current=false}}>
+            <div className={styles.visualizer}>
+            {audioChunks.length > 0 && <AudioPlayer
+                src={audioUrl ? audioUrl : new Blob(audioChunks, { type: 'audio/mp3' })}
+                waveColor="#000000"
+                progressColor="#ffffff"
+                visualize={true}
+                isRecording={isRecording}
+                backgroundColor='#045eda'
+                textColor='white'
+              />}
+            </div>
+            <button type="button" onClick={() => setIsRecording(!isRecording)}>
               {isRecording ? <i>&#x23F9;</i> : <i>&#9657;</i>}
             </button>
           </div> :

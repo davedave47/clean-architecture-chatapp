@@ -1,0 +1,40 @@
+.container {
+    height: 100%;
+    display:flex;
+    flex-direction: row;
+    .time {
+        font-size: 1.5em;
+        align-content: center;
+        text-align: center;
+        flex:1;
+        padding: 0 1%;
+    }
+    .play {
+        flex:1;
+        padding: 10px;
+        max-height: 100%;
+        background-color: transparent;
+        transition: none;
+        border: none;
+        align-content: center;
+        text-align: center;
+        font-size: 1.2em;
+        &:hover {
+            border: none;
+        }
+        &:active {
+            border: none;
+        }
+    }
+    .visualizer-container{
+        flex: 20;
+        height:100%;
+        align-content: center;
+        .visualizer {
+            height: 70%;
+        }
+    }
+    
+    
+
+}

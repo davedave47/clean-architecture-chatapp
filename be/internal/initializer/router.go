@@ -7,6 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gofiber/fiber/v2/middleware/monitor"
 )
 
 func InitRouter() *fiber.App {
@@ -21,5 +22,6 @@ func InitRouter() *fiber.App {
 	r.Use(logger.New(logger.Config{
 		Format: "${time} ${method} ${path} - ${ip} - ${status} - ${latency}\n",
 	}))
+	r.Get("/metrics", monitor.New())
 	return router.NewRouter(r)
 }

@@ -22,7 +22,7 @@ export default function Message({ message, senderName }: { message: IMessage, se
                 backgroundColor: isOwnMessage ? 'lightblue' : 'lightgreen',
                 borderRadius: '5px',
                 maxWidth: "60%",
-                color: "black"
+                color: "black",
         }}>
             <div style={
             {
@@ -35,10 +35,7 @@ export default function Message({ message, senderName }: { message: IMessage, se
             <span className="message-sender">
                 {(isOwnMessage ? 'You' : senderName) + ': '}
             </span>
-            <span style={{
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-            }}>
+            <span >
                 {message.content.file ? 
                     isImage? 
                     <div>
@@ -55,14 +52,30 @@ export default function Message({ message, senderName }: { message: IMessage, se
                     isVideo? 
                     <VideoPlayer src={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text}/>
                    :isAudio?
-                   <AudioPlayer src={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} visualize={true}/>
+                   <div style={
+                    {
+                        height: '50px',
+                        width: '400px',
+                    }
+                   }>
+                        <AudioPlayer src={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} visualize={true} waveColor="#000000" progressColor="#ffffff" isRecording={false}/>
+                   </div>
                    :
                     <a href={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} download>
                         {message.content.text.split('/').pop()?.replace(/-\d+$/, '')}
                     </a>
                     :
-                    
-                message.content.text}
+                    <span style={
+                        {
+                            color: 'black',
+                            fontSize: '1em',
+                            wordWrap: 'break-word',
+                            whiteSpace: 'pre-wrap',
+                        }
+                    }>
+                        {message.content.text}
+                    </span>
+                    }
             </span>
         </div>
     );
