@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import styles from '../styles/Video.module.scss';
+import styles from '@/styles/Video.module.scss';
 const VideoPlayer = ({ src }: {src: string}) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-import { IUser } from "../interfaces";
+import { IUser } from "@/interfaces";
 import { logOut } from "./userSlice";
 type RequestState = {
     requests: {

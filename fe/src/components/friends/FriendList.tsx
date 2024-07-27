@@ -1,9 +1,9 @@
-import styles from '../styles/Friends.module.scss';
-import { RootState, AppDispatch } from '../redux';
+import styles from '@/styles/Friends.module.scss';
+import { RootState, AppDispatch } from '@/redux';
 import {useSelector, useDispatch} from 'react-redux';
 import { useEffect } from 'react';
-import { fetchAllFriends} from '../redux/friendSlice';
-import useSocket from '../hooks/useSocket';
+import { fetchAllFriends} from '@/redux/friendSlice';
+import useSocket from '@/hooks/useSocket';
 export default function FriendList() {
     const {friends, error} = useSelector((state: RootState) => state.friend);
     const onlineUsers = useSelector((state: RootState) => state.online);

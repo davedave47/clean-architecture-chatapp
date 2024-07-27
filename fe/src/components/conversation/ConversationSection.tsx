@@ -1,9 +1,9 @@
 import Conversations from "./Conversations";
-import ChatSection from "./ChatSection";
+import ChatSection from "@/components/chat/ChatSection";
 import { ConversationCreator } from "./ConversationCreator";
 import {useState} from 'react';
-import { IConversation, IUser } from "../interfaces";
-import useSocket from "../hooks/useSocket";
+import { IConversation, IUser } from "@/interfaces";
+import useSocket from "@/hooks/useSocket";
 import chatStyles from '../styles/ChatSection.module.scss';
 export default function ConversationSection() {
     console.log("conversation section mounted")

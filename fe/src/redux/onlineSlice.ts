@@ -1,7 +1,7 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
 import { logOut } from './userSlice';
 import { removeFriend } from './friendSlice';
-import { IUser } from '../interfaces';
+import { IUser } from '@/interfaces';
 type OnlineState = IUser[]|null;
 
 const initialState: OnlineState = null;

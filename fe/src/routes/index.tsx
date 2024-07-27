@@ -3,11 +3,11 @@ import {
   Routes,
   Route,
 } from "react-router-dom"
-import LoginPage from "../pages/LoginPage";
-import SignUpPage from "../pages/SignUpPage";
-import ChatPage from "../pages/ChatPage";
-import App from "../apps/App";
-import { SocketProvider } from "../context/SocketContext";
+import LoginPage from "@/pages/LoginPage";
+import SignUpPage from "@/pages/SignUpPage";
+import ChatPage from "@/pages/ChatPage";
+import App from "@/apps/App";
+import { SocketProvider } from "@/context/SocketContext";
 function MyRouter() {
   return (
     <Router>

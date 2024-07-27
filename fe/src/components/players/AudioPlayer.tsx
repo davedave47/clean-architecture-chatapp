@@ -1,6 +1,6 @@
 import {useState,useEffect, useRef} from 'react';
 import WaveSurfer from 'wavesurfer.js'
-import styles from '../styles/AudioPlayer.module.scss';
+import styles from '@/styles/AudioPlayer.module.scss';
 
 function timeFormat(time: number): string {
     const minutes = Math.floor(time / 60);

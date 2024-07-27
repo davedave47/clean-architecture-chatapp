@@ -1,8 +1,8 @@
-import { IMessage} from '../interfaces';
+import { IMessage} from '@/interfaces';
 import { useSelector} from 'react-redux';
-import { RootState } from '../redux';
-import VideoPlayer from './VideoPlayer';
-import AudioPlayer from './AudioPlayer';
+import { RootState } from '@/redux';
+import VideoPlayer from '../players/VideoPlayer';
+import AudioPlayer from '../players/AudioPlayer';
 export default function Message({ message, senderName }: { message: IMessage, senderName: string }) {
     const user = useSelector((state: RootState) => state.user);
     const isOwnMessage = message.senderId === user.id;

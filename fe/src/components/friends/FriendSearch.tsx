@@ -1,10 +1,10 @@
 import { useState, useRef} from "react";
-import { IUser } from "../interfaces";
-import {useDebounce} from "../hooks/useDebounce";
+import { IUser } from "@/interfaces";
+import {useDebounce} from "@/hooks/useDebounce";
 import { useSelector} from "react-redux";
-import { RootState } from "../redux";
-import useSocket from "../hooks/useSocket";
-import styles from '../styles/Friends.module.scss';
+import { RootState } from "@/redux";
+import useSocket from "@/hooks/useSocket";
+import styles from '@/styles/Friends.module.scss';
 export default function FriendSearch(){
     const prevSearch = useRef('');
     const [isSearching, setIsSearching] = useState(false);

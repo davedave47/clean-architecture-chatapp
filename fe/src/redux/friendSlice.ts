@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { logOut } from "./userSlice";
-import { IUser } from "../interfaces";
+import { IUser } from "@/interfaces";
 import { acceptRequest } from "./requestSlice";
 type FriendState = {
     friends: IUser[]|null;

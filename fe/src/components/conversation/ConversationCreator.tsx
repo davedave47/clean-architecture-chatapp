@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { IUser } from "../interfaces";
+import { IUser } from "@/interfaces";
 import styles from "../styles/Coversations.module.scss"
 import { useSelector, useDispatch } from "react-redux";
-import { RootState, AppDispatch } from "../redux";
-import { fetchAllFriends } from "../redux/friendSlice";
+import { RootState, AppDispatch } from "@/redux";
+import { fetchAllFriends } from "@/redux/friendSlice";
 export function ConversationCreator({onCancel, onCreate}: {onCancel: () => void, onCreate: (participants: IUser[]) => void}) {
     const {friends, error: e} = useSelector((state: RootState) => state.friend);
     const dispatch = useDispatch<AppDispatch>();

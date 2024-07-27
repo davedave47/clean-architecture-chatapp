@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
 import { logOut } from "./userSlice";
-import { IConversation, IMessage } from "../interfaces";
+import { IConversation, IMessage } from "@/interfaces";
 
 export const fetchAllConvo = createAsyncThunk('convo/fetchConvo', async () => {
     const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/api/conversation', {

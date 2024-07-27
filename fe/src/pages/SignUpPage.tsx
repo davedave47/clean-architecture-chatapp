@@ -1,7 +1,7 @@
 import { useState, FormEvent, useEffect } from "react";
 import {Link, useNavigate} from 'react-router-dom';
-import styles from '../styles/LoginPage.module.scss';
-import { useAuth } from "../hooks/useAuth";
+import styles from '@/styles/LoginPage.module.scss';
+import { useAuth } from "@/hooks/useAuth";
 export default function SignUpPage(){
     const {result, loading} = useAuth();
     const nagivate = useNavigate();

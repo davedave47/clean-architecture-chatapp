@@ -1,14 +1,14 @@
 import { useNavigate } from "react-router-dom";
 import { MouseEvent, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { logOut } from "../redux/userSlice";
-import ConversationSection from "../components/ConversationSection";
-import { RootState, AppDispatch } from "../redux";
-import { useAuth } from "../hooks/useAuth";
-import Friends from "../components/Friends";
-import useSocket from "../hooks/useSocket";
-import Requests from "../components/Requests";
-import { fetchAllRequests } from "../redux/requestSlice";
+import { logOut } from "@/redux/userSlice";
+import ConversationSection from "@/components/conversation/ConversationSection";
+import { RootState, AppDispatch } from "@/redux";
+import { useAuth } from "@/hooks/useAuth";
+import Friends from "@/components/friends/Friends";
+import useSocket from "@/hooks/useSocket";
+import Requests from "@/components/requests/Requests";
+import { fetchAllRequests } from "@/redux/requestSlice";
 
 export default function ChatPage() {
   const nagivate = useNavigate();

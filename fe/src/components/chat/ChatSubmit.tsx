@@ -1,6 +1,6 @@
 import { FormEvent, useState, useEffect, useRef } from 'react';
-import styles from '../styles/ChatSection.module.scss';
-import AudioPlayer from './AudioPlayer';
+import styles from '@/styles/ChatSection.module.scss';
+import AudioPlayer from '../players/AudioPlayer';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 
 export default function ChatSubmit({ onSend }: { onSend: (message: string, files?: FileList) => void }) {

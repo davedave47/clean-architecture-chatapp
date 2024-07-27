@@ -1,10 +1,10 @@
 import {useSelector, useDispatch} from 'react-redux';
-import { RootState, AppDispatch } from '../redux';
-import { IConversation } from '../interfaces';
-import styles from '../styles/Coversations.module.scss';
-import { fetchAllConvo, addConvo, removeConvo } from '../redux/convoSlice';
+import { RootState, AppDispatch } from '@/redux';
+import { IConversation } from '@/interfaces';
+import styles from '@/styles/Coversations.module.scss';
+import { fetchAllConvo, addConvo, removeConvo } from '@/redux/convoSlice';
 import { useEffect } from 'react';
-import useSocket from '../hooks/useSocket';
+import useSocket from '@/hooks/useSocket';
 export default function Conversations({onCreateConversation, onClick, selected}: {onCreateConversation: () => void, onClick: (conversation: IConversation) => void, selected: IConversation | null}) {
     console.log("conversations mounted")
     const dispatch = useDispatch<AppDispatch>();

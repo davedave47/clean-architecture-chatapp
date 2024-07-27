@@ -1,9 +1,9 @@
 import {useSelector} from 'react-redux';
-import useSocket from '../hooks/useSocket';
-import { RootState } from '../redux';
+import useSocket from '@/hooks/useSocket';
+import { RootState } from '@/redux';
 import { useState } from 'react';
-import {IUser} from '../interfaces';
-import styles from '../styles/Requests.module.scss';
+import {IUser} from '@/interfaces';
+import styles from '@/styles/Requests.module.scss';
 
 export default function Requests({onCancel}: {onCancel: () => void}) {
     const {requests, loading, error} = useSelector((state: RootState) => state.request);

@@ -1,12 +1,12 @@
-import { IMessage, IConversation } from "../interfaces";
+import { IMessage, IConversation } from "@/interfaces";
 import Message from "./Message";
 import ChatSubmit from "./ChatSubmit";
-import useSocket from "../hooks/useSocket";
+import useSocket from "@/hooks/useSocket";
 import { useEffect, useState, useMemo, useRef } from "react";
-import useFetchData from "../hooks/useFetchData";
-import styles from '../styles/ChatSection.module.scss';
+import useFetchData from "@/hooks/useFetchData";
+import styles from '@/styles/ChatSection.module.scss';
 import {useDispatch} from 'react-redux';
-import { setLatestMessage } from "../redux/convoSlice";
+import { setLatestMessage } from "@/redux/convoSlice";
 
 export default function ChatSection({conversation}: {conversation: IConversation}) {
     const dispatch = useDispatch();

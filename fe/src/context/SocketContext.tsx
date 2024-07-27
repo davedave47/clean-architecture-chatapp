@@ -1,11 +1,11 @@
 import { createContext, useEffect, useState, ReactNode } from "react";
 import {useDispatch} from 'react-redux';
 import { useNavigate } from "react-router-dom";
-import { IUser } from "../interfaces";
-import { removeFriend, addFriend } from '../redux/friendSlice';
-import { removeRequest, acceptRequest, rejectRequest, receiveRequest, sendRequest } from '../redux/requestSlice';
-import { logOut } from "../redux/userSlice";
-import { setOnline, loggedOn, loggedOff } from '../redux/onlineSlice';
+import { IUser } from "@/interfaces";
+import { removeFriend, addFriend } from '@/redux/friendSlice';
+import { removeRequest, acceptRequest, rejectRequest, receiveRequest, sendRequest } from '@/redux/requestSlice';
+import { logOut } from "@/redux/userSlice";
+import { setOnline, loggedOn, loggedOff } from '@/redux/onlineSlice';
 class Socket {
   private socket: WebSocket;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
