@@ -1,12 +1,14 @@
 import { IMessage, IConversation } from "@/interfaces";
-import Message from "../../components/chat/Message";
-import ChatSubmit from "../../components/chat/ChatSubmit";
+import Message from "@/components/chat/Message";
+import ChatSubmit from "@/components/chat/ChatSubmit";
 import useSocket from "@/hooks/useSocket";
 import { useEffect, useState, useMemo, useRef } from "react";
 import useFetchData from "@/hooks/useFetchData";
 import styles from '@/styles/ChatSection.module.scss';
 import {useDispatch} from 'react-redux';
 import { setLatestMessage } from "@/redux/convoSlice";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPhone, faVideo, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function ChatSection({conversation}: {conversation: IConversation}) {
     const dispatch = useDispatch();
@@ -45,7 +47,6 @@ export default function ChatSection({conversation}: {conversation: IConversation
             return;
         }
         socket.on('chat message', (message: IMessage) => {
-            console.log("received: ", message)
             if (message.conversationId === conversation.id) {
                 setMessages(prevMessages => [...prevMessages, message]);
                 canScroll.current = true;
@@ -134,6 +135,23 @@ export default function ChatSection({conversation}: {conversation: IConversation
                 loading ? <p>Loading...</p>:
                 error ? <p>Error: {error.message}</p>:
                 <>
+                    <nav className={styles.nav}>
+                        <div className={styles.left}>
+                            <h2>{conversation.name}</h2>
+                            <button onClick={() => {console.log("clicked")}}>
+                                <FontAwesomeIcon icon={faPlus} style={{color: 'black', fontWeight: 'bolder'}} className={styles.icon}/>
+                            </button>
+                        </div>
+                        <div className={styles.right}>
+                            <button onClick={() => {console.log("phone")}}>
+                                <FontAwesomeIcon icon={faPhone} style={{color: 'white'}} className={styles.icon}/>
+                            </button>
+                            <button onClick={() => {console.log("video")}}>
+                                <FontAwesomeIcon icon={faVideo} style={{color: 'white'}} className={styles.icon}/>
+                            </button>
+                        </div>
+
+                    </nav>
                     <div className={styles.messagesContainer} onScroll={handleScroll}>
                         {isLoading && <p>Loading...</p>}
                         {messages.length > 0 && messages.map((message: IMessage) => {

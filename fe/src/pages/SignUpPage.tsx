@@ -38,8 +38,11 @@ export default function SignUpPage(){
         });
         if (response.ok)
             nagivate('/chat');
-        else
-            setError("Error creating account")
+        else {
+            response.json().then((data) => {
+                setError(data)
+            })
+        }
     }
     return (
         <div className={styles.loginContainer}>

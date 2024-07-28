@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { IUser } from "@/interfaces";
-import styles from "../styles/Coversations.module.scss"
+import styles from "@/styles/Coversations.module.scss"
 import { useSelector, useDispatch } from "react-redux";
 import { RootState, AppDispatch } from "@/redux";
 import { fetchAllFriends } from "@/redux/friendSlice";

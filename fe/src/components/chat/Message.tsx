@@ -55,7 +55,7 @@ export default function Message({ message, senderName }: { message: IMessage, se
                    <div style={
                     {
                         height: '50px',
-                        width: '400px',
+                        width: '25vw',
                     }
                    }>
                         <AudioPlayer src={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} visualize={true} waveColor="#000000" progressColor="#ffffff" isRecording={false}/>

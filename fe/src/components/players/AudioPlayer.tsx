@@ -39,15 +39,14 @@ const AudioPlayer = ({src, visualize=false, waveColor, progressColor, isRecordin
         })
         wavesurfer.current.on('audioprocess', () => {
           setCurrentTime(wavesurfer.current!.getCurrentTime());
+          setDuration(wavesurfer.current!.getDuration());
         })
         wavesurfer.current.on('finish', () => {
-          console.log('finished');
           setIsPlaying(false);    
         })
       }
       return () => {
         if (!wavesurfer.current) return
-        wavesurfer.current.empty();
         wavesurfer.current.destroy();
       }
     },[waveformRef, waveColor, src, progressColor, visualize]);

@@ -1,5 +1,5 @@
 import { useDispatch} from "react-redux";
-import { setUser } from "../redux/userSlice";
+import { setUser } from "@/redux/userSlice";
 import {useEffect, useState} from 'react'
 export function useAuth() {
     const dispatch = useDispatch();

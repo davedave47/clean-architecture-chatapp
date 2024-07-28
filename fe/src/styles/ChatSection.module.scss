@@ -3,11 +3,47 @@
     width: 80vw;
     height: 100%;
     padding-bottom: .3%;;
+    display: flex;
+    flex-direction: column;
+    nav {
+        flex: 1;
+        display: flex;
+        justify-content: space-between;
+        padding: 0 1%;
+        padding-bottom: .5%;
+        position: relative;
+        div {
+            display: inline-block;
+            display: flex;
+            align-items: center;
+        }
+        .right {
+            gap: 1%;
+            button {
+                background-color: transparent;
+                .icon{
+                    font-size: 1.5em;
+                    color: white;
+                }
+            }
+        }
+    }
+    nav:after{
+        $width: 90%;
+        content: '';
+        display: block;
+        background-color: aqua;
+        position: absolute;
+        width: $width;
+        height: 2px;
+        bottom: 0;
+        left: calc((100% - $width)/2);
+    }
     .messagesContainer{
+        flex: 10;
         display: flex;
         flex-direction: column;
         gap: 2px;
-        height: 92%;
         overflow-y: auto;
         padding: 10px;
         margin-bottom: 10px;
@@ -38,13 +74,13 @@
     }
     
     form {
+        flex: 1;
         display: flex;
         flex-direction: row;
         width: 100%;
         justify-content: center;
         padding: 0 0.5%;
         align-items: center;
-        height: 8%;
         gap: .5%;
         label, .recorder {
             display: flex;
@@ -54,7 +90,7 @@
             max-width: 10%;
             flex:1;
             border-radius: 10%;
-            height: 65%;
+            height: 80%;
             cursor: pointer;
         }
         .recorder {
@@ -72,21 +108,23 @@
             border: none;
             border-radius: 5px;
             flex:20;
+            height: 80%;
         }
         .audio {
             display: flex;
-            padding: 10px 0;
-            height: 100%;
+            padding: 0;
             gap: .75%;
             .visualizer {
                 flex: 20;
             }
             button{
+                height: 100%;
                 flex: 1;
                 background-color: black;
             }
         }
         button {
+            height: 80%;
             padding: 10px;
             border: none;
             border-radius: 5px;

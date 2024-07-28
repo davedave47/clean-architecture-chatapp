@@ -48,8 +48,8 @@ func (repo *ConvoRepo) CreateConversation(users []entities.User) (*entities.Conv
 	}
 	createdAt, err := time.Parse(time.RFC3339, convoNode.Props["createdAt"].(string))
 	participants := make([]*entities.User, len(users))
-	for _, user := range users {
-		participants = append(participants, &user)
+	for index := range users {
+		participants[index] = &users[index]
 	}
 	return &entities.Conversation{
 		ID:           convoNode.Props["id"].(string),
