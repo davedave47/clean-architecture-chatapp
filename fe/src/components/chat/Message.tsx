@@ -61,7 +61,12 @@ export default function Message({ message, senderName }: { message: IMessage, se
                         <AudioPlayer src={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} visualize={true} waveColor="#000000" progressColor="#ffffff" isRecording={false}/>
                    </div>
                    :
-                    <a href={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} download>
+                    <a href={import.meta.env.VITE_BACKEND_URL+"/uploads/"+message.content.text} download style={
+                        {
+                            wordWrap: 'break-word',
+                            whiteSpace: 'pre-wrap',
+                        }
+                    }>
                         {message.content.text.split('/').pop()?.replace(/-\d+$/, '')}
                     </a>
                     :

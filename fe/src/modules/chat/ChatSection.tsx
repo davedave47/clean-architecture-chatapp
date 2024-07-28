@@ -9,6 +9,7 @@ import {useDispatch} from 'react-redux';
 import { setLatestMessage } from "@/redux/convoSlice";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPhone, faVideo, faPlus } from "@fortawesome/free-solid-svg-icons";
+// import * as brotliPromise from 'brotli-wasm';
 
 export default function ChatSection({conversation}: {conversation: IConversation}) {
     const dispatch = useDispatch();
@@ -82,6 +83,51 @@ export default function ChatSection({conversation}: {conversation: IConversation
         if (files) {
             console.log('files: ', files)
             const formData = new FormData();
+            // const compressedPromise = Array.from(files).map((file) => {
+            //     return new Promise<void>( (resolve, reject)=> {
+            //     const filetype = file.type.split('/')[0];
+            //     if (filetype === 'image' || filetype === 'video'|| filetype === 'audio') {
+            //         formData.append('files', file);
+            //         resolve();
+            //         return;
+            //     }
+            //     const reader = new FileReader();
+            //     reader.onload = async (event) => {
+            //         if (event.target?.result) {
+            //             try {
+            //                 console.log("compressing file", file.name)
+            //                 const brotli = await brotliPromise.default;
+            //                 const arrayBuffer = event.target.result as ArrayBuffer;
+            //                 const compressed = brotli.compress(new Uint8Array(arrayBuffer), { quality: 1 });
+            //                 const blob = new Blob([compressed], { type: file.type });
+            //                 formData.append('files', new File([blob], file.name, { type: file.type }));
+            //                 resolve();
+            //             } catch (error) {
+            //                 reject(error);
+            //             }
+            //         } else {
+            //             reject(new Error('FileReader result is null'));
+            //         }
+            //     }
+            //     reader.onerror = (error) => {reject(error)};
+            //     reader.readAsArrayBuffer(file);
+            // })
+            // })
+            // Promise.all(compressedPromise).then(() => {
+            //     console.log(formData.get('files'))
+            //     fetch(import.meta.env.VITE_BACKEND_URL+'/api/conversation/upload', {
+            //         method: 'POST',
+            //         body: formData,
+            //         credentials: 'include'
+            //     }).then((response) => response.json()).then((data: string[]) => {
+            //         console.log("file data: ", data)
+            //         data.forEach((path) => {
+            //             socket.emit('chat message', {content: {text: path, file: true}, conversationId: conversation.id, createdAt: new Date()});
+            //         })
+            //     })
+            //     setTimeout(() => {sendTextMessage()},50)
+            // }).catch((error) => {
+            //     console.error(error);})
             Array.from(files).forEach((file) => {
                 formData.append('files', file);
             })
