@@ -5,7 +5,7 @@ import {useState} from 'react';
 import { IConversation, IUser } from "@/interfaces";
 import useSocket from "@/hooks/useSocket";
 import chatStyles from '@/styles/ChatSection.module.scss';
-export default function ConversationModule() {
+export default function ConversationModule({onCall}: {onCall: (conversation: IConversation, video: boolean, audio: boolean) => void}) {
     console.log("conversation section mounted")
     const [currentConvo, setCurrentConvo] = useState<IConversation | null>(null);    
     const [isCreating, setIsCreating] = useState(false);
@@ -29,7 +29,7 @@ export default function ConversationModule() {
         }>  {isCreating ? <ConversationCreator onCancel={()=>{setIsCreating(false)}} onCreate={handlecreateConversation}/>:
             <Conversations onCreateConversation={()=>{setIsCreating(true)}} onClick={handleClick}  selected={currentConvo}/>}
             <div className={chatStyles.chatSection}>
-                {currentConvo ? <ChatSection conversation={currentConvo} key={currentConvo.id}/>:<p>Loading...</p>}
+                {currentConvo ? <ChatSection conversation={currentConvo} key={currentConvo.id} onCall={onCall}/>:<p>Loading...</p>}
             </div>
         </div>
   );

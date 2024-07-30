@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPhone, faVideo, faPlus } from "@fortawesome/free-solid-svg-icons";
 // import * as brotliPromise from 'brotli-wasm';
 
-export default function ChatSection({conversation}: {conversation: IConversation}) {
+export default function ChatSection({conversation, onCall}: {conversation: IConversation, onCall: (conversation: IConversation, video: boolean, audio: boolean) => void}) {
     const dispatch = useDispatch();
     const socket = useSocket();
     const [messages, setMessages] = useState<IMessage[]>([]);
@@ -189,10 +189,10 @@ export default function ChatSection({conversation}: {conversation: IConversation
                             </button>
                         </div>
                         <div className={styles.right}>
-                            <button onClick={() => {console.log("phone")}}>
+                            <button onClick={() => {onCall(conversation, false, true)}}>
                                 <FontAwesomeIcon icon={faPhone} style={{color: 'white'}} className={styles.icon}/>
                             </button>
-                            <button onClick={() => {console.log("video")}}>
+                            <button onClick={() => {onCall(conversation, true, true)}}>
                                 <FontAwesomeIcon icon={faVideo} style={{color: 'white'}} className={styles.icon}/>
                             </button>
                         </div>

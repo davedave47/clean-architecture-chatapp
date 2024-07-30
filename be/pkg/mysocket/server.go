@@ -128,7 +128,7 @@ func (sv *Server) On(callback func(*Socket)) {
 			if socket.events.Contains(message.Event) {
 				sv.events[message.Event](socket, message.Data)
 			} else {
-				fmt.Println("Event not found")
+				fmt.Println("Event not found", message.Event)
 				continue
 			}
 		}
@@ -215,4 +215,9 @@ func (sv *Server) Run() {
 			sv.Unregister(socket)
 		}
 	}
+}
+
+func (sv *Server) ListenTLS(address, certFile, keyFile string) error {
+	go sv.Run()
+	return sv.app.ListenTLS(address, certFile, keyFile)
 }

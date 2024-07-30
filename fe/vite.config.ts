@@ -10,6 +10,10 @@ export default defineConfig({
   plugins: [react()],
   server: {
     host: '0.0.0.0',
+    https: {
+      key: 'server.key',
+      cert: 'server.crt'
+    }
   },
   resolve: {
     alias: {
@@ -18,6 +22,7 @@ export default defineConfig({
       components: path.resolve(__dirname, './src/components'),
       interfaces: path.resolve(__dirname, './src/interfaces'),
       styles: path.resolve(__dirname, './src/styles'),
+      "simple-peer": "simple-peer/simplepeer.min.js",
     },
   }
 })

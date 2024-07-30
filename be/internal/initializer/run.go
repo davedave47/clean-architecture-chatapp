@@ -1,6 +1,7 @@
 package initializer
 
 import (
+	"fmt"
 	"os"
 	databases "root/internal/infras/db"
 
@@ -30,5 +31,10 @@ func Run() {
 	if port == "" {
 		port = "3000"
 	}
-	server.Listen(":" + port)
+	err := server.ListenTLS(":"+port, os.Getenv("SSL_CERT_PATH"), os.Getenv("SSL_KEY_PATH"))
+	if err != nil {
+		fmt.Println(os.Getwd())
+		panic(err)
+	}
+	fmt.Println("Server is running on port", port)
 }

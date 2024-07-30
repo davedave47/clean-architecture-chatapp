@@ -42,4 +42,7 @@ func InitListeners(socket *mysocket.Socket, handler *controllers.ChatSocketContr
 	socket.On("remove convo", handler.RemoveConvo)
 	socket.On("unfriend", handler.Unfriend)
 	socket.On("disconnect", handler.UnregisterUser)
+	socket.On("callConvo", handler.CallConvo)
+	socket.On("acceptCall", handler.AcceptCall)
+	socket.On("rejectCall", handler.RejectCall)
 }

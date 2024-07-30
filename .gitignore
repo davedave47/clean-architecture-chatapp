@@ -16,6 +16,8 @@ migrations
 uploads
 tmp
 *.tmp.*
+*.crt
+*.key
 
 # Editor directories and files
 .vscode/*

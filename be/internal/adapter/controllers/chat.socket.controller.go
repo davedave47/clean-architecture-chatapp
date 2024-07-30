@@ -260,3 +260,88 @@ func (controllers *ChatSocketControllers) Unfriend(socket *mysocket.Socket, data
 	EmitToUser(socket, user.ID, "unfriended", &entities.User{ID: friendId})
 	return EmitToUser(socket, friendId, "unfriended", user)
 }
+
+func (controllers *ChatSocketControllers) CallConvo(socket *mysocket.Socket, data any) error {
+	user := socket.Locals("user").(*entities.User)
+	var callData struct {
+		Conversation entities.Conversation `json:"conversation"`
+		Signal       any                   `json:"signalData"`
+		From         string                `json:"from"`
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(jsonData, &callData)
+	if err != nil {
+		return err
+	}
+	callData.From = user.ID
+	for _, participant := range callData.Conversation.Participants {
+		fmt.Println("Participant:", participant.ID)
+		if participant.ID != callData.From {
+			err = EmitToUser(socket, participant.ID, "callFrom", callData)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (controllers *ChatSocketControllers) AcceptCall(socket *mysocket.Socket, data any) error {
+	user := socket.Locals("user").(*entities.User)
+	var callData struct {
+		Conversation entities.Conversation `json:"conversation"`
+		Signal       any                   `json:"signalData"`
+		From         string                `json:"from"`
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(jsonData, &callData)
+	if err != nil {
+		return err
+	}
+	callData.From = user.ID
+	for _, participant := range callData.Conversation.Participants {
+		err = EmitToUser(socket, participant.ID, "callAccepted", callData)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (controllers *ChatSocketControllers) RejectCall(socket *mysocket.Socket, data any) error {
+	user := socket.Locals("user").(*entities.User)
+	var callData struct {
+		Conversation entities.Conversation `json:"conversation"`
+		From         string                `json:"from"`
+	}
+	jsonData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(jsonData, &callData)
+	if err != nil {
+		return err
+	}
+	participants, err := controllers.convoUseCase.GetParticipants(callData.Conversation.ID)
+	if err != nil {
+		return err
+	}
+	callData.From = user.ID
+	for _, participant := range participants {
+		err = EmitToUser(socket, participant.ID, "callRejected", callData)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (controllers *ChatSocketControllers) CancelCall(socket *mysocket.Socket) {
+	fmt.Println("CancelCall")
+}

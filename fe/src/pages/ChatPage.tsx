@@ -1,4 +1,5 @@
 import { MouseEvent, useEffect, useState } from "react";
+import Peer from "simple-peer";
 
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -12,7 +13,9 @@ import ConversationSection from "@/modules/conversation/ConversationModule";
 import Friends from "@/modules/friend/FriendModule";
 import useSocket from "@/hooks/useSocket";
 import Requests from "@/modules/request/Requests";
-
+import IncomingCall from "@/components/callings/IncomingCall";
+import Calling from "@/components/callings/Calling";
+import { IConversation } from "@/interfaces";
 
 export default function ChatPage() {
   const nagivate = useNavigate();
@@ -21,7 +24,22 @@ export default function ChatPage() {
   const [showFriends, setShowFriends] = useState(false);
   const [showRequests, setShowRequests] = useState(false);
   const { result, loading } = useAuth();
+  const [incomingCall, setIncomingCall] = useState<{ caller: string; conversation: IConversation, signalData: Peer.SignalData, video: boolean, audio: boolean } | null>(null);
+  const [calling, setCalling] = useState<{conversation: IConversation, video: boolean, audio: boolean} | null>(null);
   const socket = useSocket();
+  useEffect(() => {
+    socket?.on("callFrom", (data) => {
+      setIncomingCall({
+        conversation: data.conversation,
+        caller: data.from,
+        signalData: data.signalData,
+        video: data.video,
+        audio: data.audio,
+      });
+    })
+    return () => {
+    }
+  }, [socket]);
   useEffect(() => {
     dispatch(fetchAllRequests());
   }, [dispatch]);
@@ -44,6 +62,30 @@ export default function ChatPage() {
       nagivate("/login");
     }
   }
+  const handleCall = (conversation: IConversation, video: boolean, audio: boolean) => {
+    if (calling || !socket) return;
+    setCalling({conversation, video, audio});
+  }
+  const handleLeaveCall = () => {
+    if (!socket || !calling) return;
+    socket.emit("leaveConvo", calling.conversation);
+    setCalling(null);
+    socket?.on("callFrom", (data) => {
+      setIncomingCall({
+        conversation: data.conversation,
+        caller: data.from,
+        signalData: data.signalData,
+        video: data.video,
+        audio: data.audio,
+      });
+      socket.off("callFrom");
+    })
+  };
+  const handleReject = () => {
+    if (!socket || !incomingCall) return;
+    socket.emit("rejectCall", {conversation: incomingCall.conversation, caller: incomingCall.caller});
+    setIncomingCall(null);
+  }
 
   if (loading || !socket) {
     return <div>Loading...</div>;
@@ -60,6 +102,9 @@ export default function ChatPage() {
         alignItems: "center",
       }}
     >
+      {incomingCall && <IncomingCall signalData={incomingCall.signalData} conversation={incomingCall.conversation} callerId={incomingCall.caller} onReject={handleReject}/>}
+      {calling && <Calling conversation={calling.conversation} video={calling.video} audio={calling.audio} onCancel={handleLeaveCall}/>}
+      
       <div
         style={{
           display: "flex",
@@ -96,7 +141,7 @@ export default function ChatPage() {
         <button onClick={handleSubmit}>Log out</button>
       </div>
       {showFriends && <Friends onCancel={() => setShowFriends(false)} />}
-      <ConversationSection />
+      <ConversationSection onCall={handleCall}/>
     </div>
   );
 }
