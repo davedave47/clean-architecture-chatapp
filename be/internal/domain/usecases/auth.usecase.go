@@ -1,7 +1,7 @@
 package usecases
 
 import (
-	"os"
+	"root/config"
 	"root/internal/domain/interfaces"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -28,7 +28,7 @@ func (usecases AuthUseCases) CreateUser(name string, email string, password stri
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id": user.ID,
 	})
-	tokenSecret := os.Getenv("SECRET_KEY")
+	tokenSecret := config.Config.Server.Auth.JwtSecret
 	tokenString, err := token.SignedString([]byte(tokenSecret))
 	if err != nil {
 		return "", err
@@ -48,7 +48,7 @@ func (usecases AuthUseCases) Login(email string, password string) (string, error
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id": user.ID,
 	})
-	tokenSecret := os.Getenv("SECRET_KEY")
+	tokenSecret := config.Config.Server.Auth.JwtSecret
 	tokenString, err := token.SignedString([]byte(tokenSecret))
 	if err != nil {
 		return "", err

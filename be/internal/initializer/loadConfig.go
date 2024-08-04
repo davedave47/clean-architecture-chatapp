@@ -9,8 +9,9 @@ import (
 )
 
 func loadConfig() {
-	viper.AddConfigPath("../../config")
-	viper.SetConfigName("config")
+
+	viper.AddConfigPath("./config")
+	viper.SetConfigName("local")
 	viper.SetConfigType("yaml")
 
 	if err := viper.ReadInConfig(); err != nil {

@@ -15,7 +15,7 @@ type Server struct {
 	events        map[string]func(*Socket, any) error
 	sockets       []*cache
 	app           *fiber.App
-	config        *websocket.Config
+	config        *Config
 	shutdownFlag  bool
 	shutdownMutex sync.RWMutex
 	register      chan *Socket
@@ -29,9 +29,7 @@ type cache struct {
 	sync.RWMutex
 }
 
-type Config struct {
-	websocket.Config
-}
+type Config = websocket.Config
 
 func NewServer(r *fiber.App, config ...Config) *Server {
 	initialCache := make([]*cache, 10)
@@ -57,7 +55,7 @@ func NewServer(r *fiber.App, config ...Config) *Server {
 	return &Server{
 		sockets:       initialCache,
 		app:           r,
-		config:        &config[0].Config,
+		config:        &config[0],
 		shutdownFlag:  false,
 		shutdownMutex: sync.RWMutex{},
 		events:        make(map[string]func(*Socket, any) error),
