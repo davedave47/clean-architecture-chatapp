@@ -24,8 +24,8 @@ export default function ChatPage() {
   const [showFriends, setShowFriends] = useState(false);
   const [showRequests, setShowRequests] = useState(false);
   const { result, loading } = useAuth();
-  const [incomingCall, setIncomingCall] = useState<{ caller: string; conversation: IConversation, signalData: Peer.SignalData, video: boolean, audio: boolean } | null>(null);
-  const [calling, setCalling] = useState<{conversation: IConversation, video: boolean, audio: boolean} | null>(null);
+  const [incomingCall, setIncomingCall] = useState<{ caller: string; conversation: IConversation, signalData: Peer.SignalData, video: boolean} | null>(null);
+  const [calling, setCalling] = useState<{conversation: IConversation, video: boolean} | null>(null);
   const socket = useSocket();
   useEffect(() => {
     socket?.on("callFrom", (data) => {
@@ -34,7 +34,6 @@ export default function ChatPage() {
         caller: data.from,
         signalData: data.signalData,
         video: data.video,
-        audio: data.audio,
       });
     })
     return () => {
@@ -62,9 +61,9 @@ export default function ChatPage() {
       nagivate("/login");
     }
   }
-  const handleCall = (conversation: IConversation, video: boolean, audio: boolean) => {
+  const handleCall = (conversation: IConversation, video: boolean) => {
     if (calling || !socket) return;
-    setCalling({conversation, video, audio});
+    setCalling({conversation, video});
   }
   const handleLeaveCall = () => {
     if (!socket || !calling) return;
@@ -76,7 +75,6 @@ export default function ChatPage() {
         caller: data.from,
         signalData: data.signalData,
         video: data.video,
-        audio: data.audio,
       });
       socket.off("callFrom");
     })
@@ -102,8 +100,8 @@ export default function ChatPage() {
         alignItems: "center",
       }}
     >
-      {incomingCall && <IncomingCall signalData={incomingCall.signalData} conversation={incomingCall.conversation} callerId={incomingCall.caller} onReject={handleReject}/>}
-      {calling && <Calling conversation={calling.conversation} video={calling.video} audio={calling.audio} onCancel={handleLeaveCall}/>}
+      {incomingCall && <IncomingCall video={incomingCall.video} signalData={incomingCall.signalData} conversation={incomingCall.conversation} callerId={incomingCall.caller} onReject={handleReject}/>}
+      {calling && <Calling conversation={calling.conversation} video={calling.video} onCancel={handleLeaveCall}/>}
       
       <div
         style={{

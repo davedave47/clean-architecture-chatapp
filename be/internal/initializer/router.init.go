@@ -1,7 +1,7 @@
 package initializer
 
 import (
-	"os"
+	"root/config"
 	"root/internal/infras/router"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +15,7 @@ func InitRouter() *fiber.App {
 		BodyLimit: 1024 * 1024 * 25,
 	})
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     os.Getenv("FRONTEND_URL") + ", https://localhost:5173, https://192.168.1.222:5173",
+		AllowOrigins:     config.Config.Server.Cors.Origin + ", https://localhost:5173, https://192.168.1.222:5173",
 		AllowCredentials: true,
 	}))
 	//Default middlewares

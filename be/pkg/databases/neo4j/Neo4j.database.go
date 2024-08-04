@@ -1,4 +1,4 @@
-package databases
+package neo4j
 
 import (
 	"context"
@@ -10,15 +10,22 @@ import (
 	neo4jdb "github.com/neo4j/neo4j-go-driver/v5/neo4j/db"
 )
 
-type Neo4jDatabase struct {
+type Database struct {
 	driver   *neo4j.DriverWithContext
 	context  context.Context
 	database string
 }
 
+type Config struct {
+	URL      string `mapstructure:"url"`
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+	Database string `mapstructure:"database"`
+}
+
 type Record *neo4jdb.Record
 
-func NewNeo4jConnection(ctx context.Context, url, username, password, database, realm string) (*Neo4jDatabase, error) {
+func NewNeo4jConnection(ctx context.Context, url, username, password, database, realm string) (*Database, error) {
 	driver, err := neo4j.NewDriverWithContext(url, neo4j.BasicAuth(username, password, realm))
 	if err != nil {
 		return nil, err
@@ -28,14 +35,14 @@ func NewNeo4jConnection(ctx context.Context, url, username, password, database, 
 		return nil, err
 	}
 	fmt.Println("Connected to Neo4j")
-	return &Neo4jDatabase{
+	return &Database{
 		driver:   &driver,
 		database: database,
 		context:  ctx,
 	}, nil
 }
 
-func (db *Neo4jDatabase) NewSession() (neo4j.SessionWithContext, context.Context, context.CancelFunc) {
+func (db *Database) NewSession() (neo4j.SessionWithContext, context.Context, context.CancelFunc) {
 	ctx, cancel := context.WithTimeout(db.context, 10*time.Second)
 	session := (*db.driver).NewSession(ctx, neo4j.SessionConfig{
 		DatabaseName: db.database,
@@ -46,7 +53,7 @@ func (db *Neo4jDatabase) NewSession() (neo4j.SessionWithContext, context.Context
 	}
 }
 
-func (db *Neo4jDatabase) Query(query string, params map[string]interface{}) ([]*neo4jdb.Record, error) {
+func (db *Database) Query(query string, params map[string]interface{}) ([]*neo4jdb.Record, error) {
 	session, ctx, cancel := db.NewSession()
 	defer cancel()
 
@@ -91,6 +98,6 @@ func GetNode(record *neo4jdb.Record, key string) (*neo4j.Node, error) {
 	return &node, err
 }
 
-func (db *Neo4jDatabase) Close() {
+func (db *Database) Close() {
 	(*db.driver).Close(db.context)
 }

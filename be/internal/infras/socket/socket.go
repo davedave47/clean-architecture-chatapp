@@ -4,7 +4,7 @@ import (
 	"root/internal/adapter/controllers"
 	"root/internal/adapter/middleware"
 	"root/internal/domain/usecases"
-	databases "root/internal/infras/db"
+	"root/internal/infras/databases"
 	"root/internal/infras/repository"
 	"root/pkg/mysocket"
 

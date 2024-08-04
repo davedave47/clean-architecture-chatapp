@@ -3,38 +3,34 @@ package initializer
 import (
 	"fmt"
 	"os"
-	databases "root/internal/infras/db"
-
-	"github.com/joho/godotenv"
+	"root/config"
+	"root/internal/infras/databases"
 )
 
 func Run() {
-	godotenv.Load()
 	loadConfig()
 
-	neo4jDatabase, cleanupNeo4j := initNeo4j()
-	databases.UserDB = neo4jDatabase
-	defer cleanupNeo4j()
+	userDB, cleanupUserDB := initUserDB()
+	databases.UserDB = userDB
+	defer cleanupUserDB()
 
-	mongoDatabase, cleanupMongo := initMongo()
-	databases.MessageDB = mongoDatabase
-	defer cleanupMongo()
+	messageDB, cleanupMessageDB := initMessageDB()
+	databases.MessageDB = messageDB
+	defer cleanupMessageDB()
 
-	redisDatabase, cleanupRedis := initRedis()
-	databases.SocketDB = redisDatabase
-	defer cleanupRedis()
+	socketDB, cleanupSocketDB := initSocketDB()
+	databases.SocketDB = socketDB
+	defer cleanupSocketDB()
 
 	r := InitRouter()
 	server := InitSocket(r)
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
-	}
-	err := server.ListenTLS(":"+port, os.Getenv("SSL_CERT_PATH"), os.Getenv("SSL_KEY_PATH"))
+	serverConfig := config.Config.Server
+
+	err := server.ListenTLS(":"+serverConfig.Port, serverConfig.SSL.CertPath, serverConfig.SSL.KeyPath)
 	if err != nil {
 		fmt.Println(os.Getwd())
 		panic(err)
 	}
-	fmt.Println("Server is running on port", port)
+	fmt.Println("Server is running on port", serverConfig.Port)
 }

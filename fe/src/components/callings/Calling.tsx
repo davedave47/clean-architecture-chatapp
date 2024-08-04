@@ -6,35 +6,43 @@ import DuringCall from './DuringCall';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux';
 
-function Calling({conversation, video, audio, onCancel}: {conversation: IConversation, video: boolean, audio: boolean, onCancel: () => void}) {
+function Calling({conversation, video, onCancel}: {conversation: IConversation, video: boolean, onCancel: () => void}) {
     const socket = useSocket();
     const [calling, setCalling] = useState(true);
-    const [call, setCall] = useState<{peer: Peer.Instance, stream: MediaStream} | null>(null);
+    const [call, setCall] = useState<{peer: Peer.Instance, mystream: MediaStream, callerstream: MediaStream[]} | null>(null);
     const user = useSelector((state: RootState) => state.user);
     useEffect(() => {
         if (!socket) {
             return;
         }
-        navigator.mediaDevices.getUserMedia({video: false, audio}).then(stream => {
+        navigator.mediaDevices.getUserMedia({video, audio: true}).then(stream => {
             const peer = new Peer({
                 initiator: true,
                 trickle: false,
                 stream,
             });
             peer.on("signal", data => {
-                socket.emit("callConvo", {conversation, signalData: data});
+                socket.emit("callConvo", {conversation, signalData: data, video});
             });
+            peer.on("stream", callerstream => {
+                setCall(prev => {
+                    if (prev) {
+                        prev.callerstream.push(callerstream);
+                        return prev;
+                    }
+                    return {peer, mystream: stream, callerstream: [callerstream]};
+                });
+            })
             socket.on("callAccepted", data => {
-                console.log("call accepted", data.from)
+                console.log("call accepted by", data.signalData)
                 setCalling(false);
                 peer.signal(data.signalData);
             });
-            setCall({peer, stream});
         })
         return () => {
             socket.off("callAccepted");
         }
-    },[socket, conversation, video, audio]);
+    },[socket, conversation, video]);
 
     return (
         <>
@@ -88,7 +96,7 @@ function Calling({conversation, video, audio, onCancel}: {conversation: IConvers
                     </div>
                     : 
                     call ?
-                    <DuringCall peer={call.peer} stream={call.stream} conversation={conversation} onLeave={onCancel}/>
+                    <DuringCall peer={call.peer} mystream={call.mystream} callerstream={call.callerstream} conversation={conversation} onLeave={onCancel}/>
                     : 
                     <div>Loading...</div>
             }

@@ -3,11 +3,11 @@ package repository
 import (
 	"fmt"
 	"root/internal/domain/entities"
-	databases "root/internal/infras/db"
+	"root/pkg/databases/neo4j"
 )
 
-func RecordToUser(record databases.Record) (*entities.User, error) {
-	usernode, err := databases.GetNode(record, "u")
+func RecordToUser(record neo4j.Record) (*entities.User, error) {
+	usernode, err := neo4j.GetNode(record, "u")
 	if err != nil {
 		return nil, err
 	}
@@ -19,10 +19,10 @@ func RecordToUser(record databases.Record) (*entities.User, error) {
 }
 
 type UserRepository struct {
-	neo4j *databases.Neo4jDatabase
+	neo4j *neo4j.Database
 }
 
-func NewUserRepo(neo4j *databases.Neo4jDatabase) *UserRepository {
+func NewUserRepo(neo4j *neo4j.Database) *UserRepository {
 	return &UserRepository{
 		neo4j: neo4j,
 	}
@@ -52,7 +52,7 @@ func (repo *UserRepository) GetUserByEmail(email string) (*entities.User, string
 	if len(records) == 0 {
 		return nil, "", fmt.Errorf("user not found")
 	}
-	userNode, err := databases.GetNode(records[0], "u")
+	userNode, err := neo4j.GetNode(records[0], "u")
 	if err != nil {
 		return nil, "", err
 	}

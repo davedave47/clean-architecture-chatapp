@@ -1,0 +1,23 @@
+server:
+  port: 3000
+  ssl:
+    key_path: server.key
+    cert_path: server.crt
+  auth:
+    jwt_secret: secret
+    admin_id: 6193b092-06ee-4a60-a4cb-
+  cors:
+    origin: https://113.22.87.36
+databases:
+  neo4j:
+    url: neo4j://localhost:7687
+    username: neo4j
+    password: bagel-italian-pepper-imitate-studio-7742
+    database: neo4j
+  mongo:
+    url: mongodb://127.0.0.1:27017
+    database: chatapp
+  redis:
+    url: localhost:6379
+    password: duy123
+    database: 1

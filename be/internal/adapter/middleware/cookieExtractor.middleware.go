@@ -1,11 +1,10 @@
 package middleware
 
 import (
-	"fmt"
-	"os"
+	"root/config"
+	"root/pkg/utils"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func JWTExtractor() fiber.Handler {
@@ -14,20 +13,11 @@ func JWTExtractor() fiber.Handler {
 		if tokenStr == "" {
 			c.Next()
 		} else {
-			token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
-				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-					return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-				}
-				return []byte(os.Getenv("SECRET_KEY")), nil
-			})
+			claims, err := utils.JWTParser(config.Config.Server.Auth.JwtSecret, tokenStr)
 			if err != nil {
 				return c.Status(401).SendString("No user found")
 			}
-			if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-				c.Locals("id", claims["id"].(string))
-			} else {
-				return c.Status(401).SendString("No user found")
-			}
+			c.Locals("id", claims["id"].(string))
 		}
 		return c.Next()
 	}

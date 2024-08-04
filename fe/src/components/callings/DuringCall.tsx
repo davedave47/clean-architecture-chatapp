@@ -2,37 +2,32 @@ import Peer from "simple-peer";
 import { useEffect, useRef } from "react";
 import { IConversation } from "@/interfaces";
 import useSocket from "@/hooks/useSocket";
-const DuringCall = ({peer, stream, conversation, onLeave}: {peer: Peer.Instance, stream:MediaStream, conversation: IConversation, onLeave: () => void}) => {
+const DuringCall = ({peer, mystream, callerstream, conversation, onLeave}: {peer: Peer.Instance, mystream:MediaStream, callerstream: MediaStream[], conversation: IConversation, onLeave: () => void}) => {
     const myVideo = useRef<HTMLVideoElement | null>(null);
-    const remoteVideos = useRef<HTMLDivElement | null>(null);
+    const remoteVideos = useRef<(HTMLVideoElement | null)[]>([]);
     const socket = useSocket();
     //const connectionsRef = useRef<Peer.Instance[]>([]);
     useEffect(() => {
-        if (!myVideo.current || !remoteVideos.current|| !socket) {
+        if (myVideo.current) {
+            myVideo.current.srcObject = mystream;
+        }
+        callerstream.forEach((stream, index) => {
+            if (!remoteVideos.current[index]) return;
+            remoteVideos.current[index].srcObject = stream;
+        });
+    }, [mystream, callerstream]);
+
+    useEffect(() => {
+        if (!socket) {
             return;
         }
-        socket.off("callAccepted");
-        socket.off("callConvo");
-        socket.on("callAccepted", data => {
-            console.log("call accepted by", data.from)
-            peer.signal(data.signal);
-        })
-        myVideo.current.srcObject = stream;
-        peer.on("stream", stream => {
-            const div = document.createElement("div");
-            const video = document.createElement("video");
-            video.srcObject = stream;
-            video.autoplay = true;
-            video.playsInline = true;
-            div.appendChild(video);
-            remoteVideos.current?.appendChild(div);
-        });
+        socket.off("callConvo");   
         peer.on("close", () => {
             onLeave();
             peer.destroy();
         });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[conversation, peer, stream, socket]);
+    },[conversation, peer, socket]);
     
     return (
         <div style={
@@ -49,14 +44,22 @@ const DuringCall = ({peer, stream, conversation, onLeave}: {peer: Peer.Instance,
                 zIndex: 100,
                 borderRadius: '5%',
                 color: 'white',
+                padding: '10px 0',
             }
         }>
-            <div>
-            <video ref={myVideo} autoPlay playsInline muted style={{width: "100%", height: "100%"}}></video>
-            <p>ME</p>
+            <div style={{width: "100%", flex: 1, position: "relative"}}>
+                <video ref={myVideo} autoPlay playsInline muted style={{width: "100%", height: "100%"} }>
+                </video>
+                <p style={{position: "absolute", left: "0px", bottom: "0px"}}>ME</p>
             </div>
-            <div ref={remoteVideos}></div>
-            <button onClick={onLeave}>Leave</button>
+            {callerstream.map((_, index) => (
+                <div key={index} style={{width: "100%", flex: 1, position: "relative"}}>
+                    <video ref={el => remoteVideos.current[index] = el} autoPlay playsInline style={{width: "100%", height: "100%"}}>
+                    </video>
+                    <p style={{position: "absolute", left: "0px", bottom: "0px"}}>THEM {index + 1}</p>
+                </div>
+            ))}
+            <button style={{flex: 0.1, padding: 0, marginTop: "5%", width: "50%", alignSelf: "center"}} onClick={onLeave}>Leave</button>
         </div>
     )
 }

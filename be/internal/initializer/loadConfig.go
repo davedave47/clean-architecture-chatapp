@@ -1,23 +1,23 @@
 package initializer
 
 import (
-	"os"
+	"fmt"
+
+	"root/config"
+
+	"github.com/spf13/viper"
 )
 
 func loadConfig() {
-	// Load configuration from environment variables
-	loadNeo4jConfig(&Neo4jConfiguration{
-		Url:      os.Getenv("NEO4J_URL"),
-		Username: os.Getenv("NEO4J_USERNAME"),
-		Password: os.Getenv("NEO4J_PASSWORD"),
-	})
-	loadMongoConfig(&MongoConfiguration{
-		URI:      os.Getenv("MONGO_URL"),
-		Database: os.Getenv("MONGO_DATABASE"),
-	})
-	loadRedisConfig(&RedisConfiguration{
-		Addr:     os.Getenv("REDIS_URL"),
-		Password: os.Getenv("REDIS_PASSWORD"),
-		DB:       os.Getenv("REDIS_DB"),
-	})
+	viper.AddConfigPath("../../config")
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+
+	if err := viper.ReadInConfig(); err != nil {
+		panic(fmt.Errorf("fatal error config file: %s", err))
+	}
+
+	if err := viper.Unmarshal(&config.Config); err != nil {
+		panic(fmt.Errorf("fatal error config file: %s", err))
+	}
 }

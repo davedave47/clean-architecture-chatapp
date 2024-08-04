@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"os"
+	"root/config"
 	"root/internal/domain/entities"
 
 	"github.com/gofiber/fiber/v2"
@@ -13,7 +13,7 @@ func IsAdmin() fiber.Handler {
 		if !ok {
 			return c.Status(401).SendString("Unauthorized")
 		}
-		if user.ID != os.Getenv("ADMIN_ID") {
+		if user.ID != config.Config.Server.Auth.AdminID {
 			return c.Status(401).SendString("You don't have permission to access this route")
 		}
 		return c.Next()

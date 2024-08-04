@@ -5,27 +5,35 @@ import Peer from "simple-peer";
 import useSocket from "@/hooks/useSocket";
 import { useState } from "react";
 import DuringCall from "./DuringCall";
-const IncomingCall = ({conversation, callerId, signalData, onReject}: {conversation: IConversation, callerId: string, signalData: Peer.SignalData, onReject: ()=>void}) => {
+const IncomingCall = ({conversation, callerId, video, signalData, onReject}: {conversation: IConversation, callerId: string, video: boolean, signalData: Peer.SignalData, onReject: ()=>void}) => {
     const user = useSelector((state: RootState) => state.user);
-    const [call, setCall] = useState<{peer: Peer.Instance, stream: MediaStream} | null>(null);
+    const [call, setCall] = useState<{peer: Peer.Instance, mystream: MediaStream, callerstream: MediaStream[]} | null>(null);
     const socket = useSocket();
     const handleReject = () => {
         onReject();
     };
     const handleAccept = () => {
         if (!socket) return;
-        navigator.mediaDevices.getUserMedia({video: false, audio: true}).then(stream => {
+        navigator.mediaDevices.getUserMedia({video, audio: true}).then(stream => {
             const peer = new Peer({
                 initiator: false,
                 trickle: false,
                 stream,
             });
             peer.on("signal", data => {
-                console.log("sending signal")
+                console.log("In coming call from", signalData)
+                peer.signal(signalData);
                 socket.emit("acceptCall", {signalData: data, conversation: conversation});
             });
-            peer.signal(signalData);
-            setCall({peer, stream});
+            peer.on("stream", callerstream => {
+                setCall(prev => {
+                    if (prev) {
+                        prev.callerstream.push(callerstream);
+                        return prev;
+                    }
+                    return {peer, mystream: stream, callerstream: [callerstream]};
+                });
+            })
         });
     };
     if (!call)
@@ -94,7 +102,7 @@ const IncomingCall = ({conversation, callerId, signalData, onReject}: {conversat
         </div>
     );
     return (
-        <DuringCall peer={call.peer} stream={call.stream} conversation={conversation} onLeave={onReject}/>
+        <DuringCall peer={call.peer} mystream={call.mystream} callerstream={call.callerstream} conversation={conversation} onLeave={onReject}/>
     )
 }
 

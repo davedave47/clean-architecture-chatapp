@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"os"
 	"root/internal/domain/entities"
-	databases "root/internal/infras/db"
+	"root/pkg/databases/mongodb"
+	"root/pkg/databases/neo4j"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,11 +14,11 @@ import (
 )
 
 type ConvoRepo struct {
-	messageDB *databases.MongoDatabase
-	convoDB   *databases.Neo4jDatabase
+	messageDB *mongodb.Database
+	convoDB   *neo4j.Database
 }
 
-func NewConvoRepo(messageDB *databases.MongoDatabase, convoDB *databases.Neo4jDatabase) *ConvoRepo {
+func NewConvoRepo(messageDB *mongodb.Database, convoDB *neo4j.Database) *ConvoRepo {
 	return &ConvoRepo{
 		messageDB: messageDB,
 		convoDB:   convoDB,
@@ -42,7 +43,7 @@ func (repo *ConvoRepo) CreateConversation(users []entities.User) (*entities.Conv
 	if err != nil {
 		return nil, err
 	}
-	convoNode, err := databases.GetNode(records[0], "c")
+	convoNode, err := neo4j.GetNode(records[0], "c")
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +73,7 @@ func (repo *ConvoRepo) GetConversations(userId string, skip int) ([]*entities.Co
 	}
 	conversations := make([]*entities.Conversation, len(records))
 	for index, record := range records {
-		convoNode, err := databases.GetNode(record, "conversation")
+		convoNode, err := neo4j.GetNode(record, "conversation")
 		if err != nil {
 			return nil, err
 		}

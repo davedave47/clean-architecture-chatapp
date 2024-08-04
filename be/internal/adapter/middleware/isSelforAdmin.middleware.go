@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"os"
+	"root/config"
 	"root/internal/domain/entities"
 	"root/internal/domain/usecases"
 
@@ -17,7 +17,7 @@ func IsSelforAdmin(userUsecase *usecases.UserUseCases) fiber.Handler {
 		}
 
 		//Check if user is admin
-		isAdmin := user.ID == os.Getenv("ADMIN_ID")
+		isAdmin := user.ID == config.Config.Server.Auth.AdminID
 		if isAdmin {
 			//Pasring request body
 			var requestBody struct {

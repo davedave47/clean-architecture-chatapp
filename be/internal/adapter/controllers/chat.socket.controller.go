@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"root/internal/domain/entities"
 	"root/internal/domain/usecases"
-	databases "root/internal/infras/db"
+	"root/internal/infras/databases"
 	"root/pkg/mysocket"
 )
 
@@ -267,6 +267,7 @@ func (controllers *ChatSocketControllers) CallConvo(socket *mysocket.Socket, dat
 		Conversation entities.Conversation `json:"conversation"`
 		Signal       any                   `json:"signalData"`
 		From         string                `json:"from"`
+		Video        bool                  `json:"video"`
 	}
 	jsonData, err := json.Marshal(data)
 	if err != nil {

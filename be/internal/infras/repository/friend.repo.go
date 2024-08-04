@@ -2,14 +2,14 @@ package repository
 
 import (
 	"root/internal/domain/entities"
-	databases "root/internal/infras/db"
+	"root/pkg/databases/neo4j"
 )
 
 type FriendRepository struct {
-	neo4j *databases.Neo4jDatabase
+	neo4j *neo4j.Database
 }
 
-func NewFriendRepo(neo4j *databases.Neo4jDatabase) *FriendRepository {
+func NewFriendRepo(neo4j *neo4j.Database) *FriendRepository {
 	return &FriendRepository{
 		neo4j: neo4j,
 	}
